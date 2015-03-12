@@ -1,11 +1,40 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainClass">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+
+    <Button
+        android:id="@+id/btnSearch"
+        android:text="Gerät suchen"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onSearchDevices" />
+
+    <Button
+        android:id="@+id/btnDiscover"
+        android:text="Gerät entdeckbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onDiscoverDevices" />
+
+    <TextView
+        android:id="@+id/txtView"
+        android:text="Bitte einen Knopf drücken!"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-</RelativeLayout>
+    <Button
+        android:id="@+id/btnSendMessage"
+        android:text="Senden"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onSendMessage" />
+
+    <TextView
+        android:id="@+id/txtViewSend"
+        android:text="Senden!"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
