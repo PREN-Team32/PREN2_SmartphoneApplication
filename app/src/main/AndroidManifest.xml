@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ch.pren.androidapp" >
-    //Bluetooth permissions
+
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-feature android:name="android.hardware.usb.host"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera" />
+
 
     <application
         android:allowBackup="true"
@@ -23,13 +31,19 @@
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
-
         </activity>
+
         <activity
             android:name=".DeviceListActivity"
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Dialog"
             android:configChanges="orientation|keyboardHidden" />
+
+        <service
+            android:name="ch.pren.usbconnector.UsbService"
+            android:enabled="true" >
+        </service>
+
     </application>
 
 </manifest>
