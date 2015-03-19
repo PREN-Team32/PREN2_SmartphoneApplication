@@ -10,4 +10,8 @@ public class ContrComm {
 
     public void sendAngle() {
     }
+
+    public void dummy() {
+        System.out.println("dummy");
+    }
 }

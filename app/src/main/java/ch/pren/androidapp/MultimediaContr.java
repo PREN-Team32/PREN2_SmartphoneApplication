@@ -12,4 +12,8 @@ public class MultimediaContr {
     public void playSound() {
 
     }
+
+    public void dummy() {
+        System.out.println("dummy");
+    }
 }
