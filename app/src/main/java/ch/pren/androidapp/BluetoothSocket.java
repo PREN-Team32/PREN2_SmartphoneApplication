@@ -8,10 +8,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.UUID;
 
 public class BluetoothSocket {
@@ -251,6 +253,7 @@ public class BluetoothSocket {
 //        }
     }
 
+
     /**
      * This thread runs while attempting to make an outgoing connection
      * with a device. It runs straight through; the connection either
@@ -384,17 +387,6 @@ public class BluetoothSocket {
                 Log.e(TAG, "Exception during write", e);
             }
         }
-
-
-        public void write(Object obj) {
-            try {
-
-
-            } catch (Exception ex) {
-
-            }
-        }
-
 
         public void write(int out) {
             try {

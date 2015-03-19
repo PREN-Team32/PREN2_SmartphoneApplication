@@ -17,8 +17,15 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 import ch.pren.model.ConfigurationItem;
@@ -98,11 +105,19 @@ public class MainClass extends ActionBarActivity {
         // not enabled during onStart(), so we were paused to enable it...
         // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
         if (mCommandService != null) {
-
+            if (mCommandService.getState() != BluetoothSocket.STATE_NONE) {
                 mCommandService.start();
-
+            }
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mCommandService.stop();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -216,16 +231,46 @@ public class MainClass extends ActionBarActivity {
         }
     }
 
-    public void onSendMessage(View view) throws FileNotFoundException {
+    public void onSendMessage(View view) throws IOException {
 
         ConfigurationItem confi = new ConfigurationItem();
         confi.heightToObserve = 12;
 
-        sendText = (TextView) findViewById(R.id.txtViewSend);
-        FileOutputStream fos = new FileOutputStream("confi.ser");
 
+        sendText = (TextView) findViewById(R.id.txtViewSend);
         mCommandService.write(1);
+        // / FileOutputStream fos = new FileOutputStream("confi.ser");
+
+        //mCommandService.write(fos);
+
+
+        //Test Object to Byte
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeObject(confi);
+            byte[] yourBytes = bos.toByteArray();
+            int state = mCommandService.getState();
+
+            mCommandService.write(yourBytes);
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+            try {
+                bos.close();
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
     }
+
+
 }
 
 
