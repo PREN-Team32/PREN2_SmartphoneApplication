@@ -43,7 +43,6 @@ public class UsbService extends Service
 	
 	private IBinder binder = new UsbBinder();
 
-    private Object lock;
 	private Context context;
 	private Handler mHandler;
 	private UsbManager usbManager;
@@ -177,52 +176,13 @@ public class UsbService extends Service
             Log.d("thomSerial", "onReceivedData() ");
 
             try {
-    /*
-
-                // JUNGE => Was schikts zu dem Board? Den sendeneden String auf ASCII Abändern!!!!!!!!!!!!!!!
-                // ALSO: kann auch ASCII anzeigen. => Problem irgendwo beim hex zu ascii
-                //http://docs.oracle.com/javase/tutorial/i18n/text/string.html
-                // Kill the fucking APP after onPause() or so!!! misbehaves every time...
-
-
-                // byte in ascii => UTF-8
-                Charset charset = Charset.forName("UTF-8"); // oder US-ASCII
-                String data = new String(arg0, charset);
-
-
-               // ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(cbuf);
-
-                 String data1 = new String(arg0, "US-ASCII");
-
-                if (mHandler != null)
-                    mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, data1).sendToTarget();
-
-                Log.d("thomSerial", "This msg should be sent to Handler _ data1: " + data1);
-
-
-               // String data = new String(arg0 , UTF8_CHARSET );
-                //byte[] r = data1.getBytes(UTF8_CHARSET);
-                //String data = new String(r, UTF8_CHARSET);
-*/
-                //String data2 = HexData.hexToString(arg0);
-                //String data3 = convertHexToString(data2);
-
 
                 String data3 = new String(arg0, "UTF-8");
-
-
-
-
-
 
                 if (mHandler != null)
                     mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, data3).sendToTarget();
 
                 Log.d("thomSerial", "This msg should be sent to Handler _ data3: " + data3);
-
-
-
-
 
 
             } catch (Exception e) {
@@ -231,13 +191,6 @@ public class UsbService extends Service
 
         }
     };
-
-
-
-
-	
-
-
 
 
 	public class UsbBinder extends Binder

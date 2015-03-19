@@ -272,7 +272,7 @@ public class PL2303SerialDevice extends UsbSerialDevice
 	@Override
 	public void setFlowControl(int flowControl)
 	{
-		
+
 	}
 	
 	
