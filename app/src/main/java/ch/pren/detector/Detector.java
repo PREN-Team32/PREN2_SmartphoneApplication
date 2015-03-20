@@ -3,6 +3,7 @@ package ch.pren.detector;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import static ch.pren.detector.ImageHandler.WIDTH_TO_OBSERVE;
+import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
 
 /**
  * Created by Nikk
@@ -29,7 +30,7 @@ public class Detector {
     }
 
     //Zu konfigurierende Variabeln
-    protected static float LUMINANCETHRESHOLD = 0.5f;
+    protected static float LUMINANCETHRESHOLD = 0.3f;
     protected static int VISITED_PIXELS = 3; //Amount of visited adjacent Pixels to determine a shape.
 
     //Zur Zeitmessung

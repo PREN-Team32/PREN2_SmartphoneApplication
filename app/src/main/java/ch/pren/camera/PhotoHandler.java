@@ -15,7 +15,7 @@ import java.util.Locale;
 /**
  * Created by Thomas on 12.03.2015.
  */
-class PhotoHandler implements Camera.PictureCallback {
+public class PhotoHandler implements Camera.PictureCallback {
 
 
     private final Context context;
@@ -30,6 +30,8 @@ class PhotoHandler implements Camera.PictureCallback {
     public void onPictureTaken(byte[] data, Camera camera) {
 
         File pictureFileDir = getDir();
+
+        //TODO File abspeichern und/oder byte[] direkt an ImageHandler senden?
 
         if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
 
