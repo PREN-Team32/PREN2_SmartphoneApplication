@@ -31,13 +31,13 @@ import java.util.UUID;
 import ch.pren.model.ConfigurationItem;
 
 
-public class MainClass extends ActionBarActivity {
+public class BluetoothConnection extends ActionBarActivity {
 
     private static final String TAG = "BluetoothActivity" ;
     private static final String ComputerName ="LIVIO-LAPTOP"; //Per Optione Änderbar mache, ned Hardcoded esch behinderet
 
 
-    private BluetoothAdapter BA;
+    private BluetoothAdapter BA = null;
 
 
     //Für Tests
@@ -114,8 +114,9 @@ public class MainClass extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        mCommandService.stop();
+        if (mCommandService != null) {
+            mCommandService.stop();
+        }
     }
 
     @Override
@@ -141,8 +142,10 @@ public class MainClass extends ActionBarActivity {
     }
 
     public void onDiscoverDevices(View view) {
+
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
         startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+
     }
 
 
@@ -231,17 +234,14 @@ public class MainClass extends ActionBarActivity {
         }
     }
 
-    public void onSendMessage(View view) throws IOException {
+    public void onSendMessage(View view) {
 
         ConfigurationItem confi = new ConfigurationItem();
         confi.heightToObserve = 12;
 
 
         sendText = (TextView) findViewById(R.id.txtViewSend);
-        mCommandService.write(1);
-        // / FileOutputStream fos = new FileOutputStream("confi.ser");
 
-        //mCommandService.write(fos);
 
 
         //Test Object to Byte
@@ -251,9 +251,10 @@ public class MainClass extends ActionBarActivity {
             out = new ObjectOutputStream(bos);
             out.writeObject(confi);
             byte[] yourBytes = bos.toByteArray();
-            int state = mCommandService.getState();
 
             mCommandService.write(yourBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             try {
                 if (out != null) {
