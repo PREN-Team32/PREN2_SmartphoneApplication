@@ -23,6 +23,7 @@ public class Detector {
     private long gebrauchteZeit;
     private int objectBorder;
 
+
     public long getGebrauchteZeit() {
         return gebrauchteZeit;
     }

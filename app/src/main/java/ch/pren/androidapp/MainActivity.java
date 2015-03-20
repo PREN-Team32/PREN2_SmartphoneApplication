@@ -1,6 +1,7 @@
 package ch.pren.androidapp;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -10,9 +11,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+
+import java.io.ByteArrayOutputStream;
 
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
+import ch.pren.detector.Detector;
+
+import static ch.pren.camera.PhotoHandler.FILEPATH;
 
 /**
  * Created by Thomas on 20.03.2015.
@@ -22,6 +29,7 @@ public class MainActivity extends Activity {
     public static final String DEBUG_TAG = "PREN_T32: ";
     private Camera camera;
     private CameraPreview mPreview;
+    private PhotoHandler photoHandler;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +37,19 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         //Bluetooth Connection aufbauen
+
+        try {
+            camera = Camera.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        camera.setDisplayOrientation(90);
+
+        mPreview = new CameraPreview(this, camera);
+
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
 
 
     }
@@ -53,6 +74,19 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (camera != null) {
+            mPreview.mCamera.stopPreview();
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+        }
+
     }
 
     /**
@@ -88,7 +122,7 @@ public class MainActivity extends Activity {
      */
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            PhotoHandler photoHandler = new PhotoHandler(getApplicationContext());
+            photoHandler = new PhotoHandler(getApplicationContext());
             photoHandler.onPictureTaken(data,camera);
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
