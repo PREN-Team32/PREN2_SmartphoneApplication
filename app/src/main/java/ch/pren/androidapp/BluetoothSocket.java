@@ -8,12 +8,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.UUID;
 
 public class BluetoothSocket {
@@ -67,7 +64,7 @@ public class BluetoothSocket {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(MainClass.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(BluetoothConnection.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /**
@@ -105,7 +102,6 @@ public class BluetoothSocket {
      * @param device The BluetoothDevice to connect
      */
     public synchronized void connect(BluetoothDevice device) {
-        if (D) Log.d(TAG, "connect to: " + device);
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -153,9 +149,9 @@ public class BluetoothSocket {
         mConnectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(MainClass.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(BluetoothConnection.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(MainClass.DEVICE_NAME, device.getName());
+        bundle.putString(BluetoothConnection.DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -221,9 +217,9 @@ public class BluetoothSocket {
         setState(STATE_LISTEN);
 
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(MainClass.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(BluetoothConnection.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(MainClass.TOAST, "Unable to connect device");
+        bundle.putString(BluetoothConnection.TOAST, "Unable to connect device");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
@@ -245,9 +241,9 @@ public class BluetoothSocket {
 //        } else {
         setState(STATE_LISTEN);
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(MainClass.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(BluetoothConnection.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(MainClass.TOAST, "Device connection was lost");
+        bundle.putString(BluetoothConnection.TOAST, "Device connection was lost");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 //        }
@@ -361,7 +357,7 @@ public class BluetoothSocket {
                     int bytes = mmInStream.read(buffer);
 
                     // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(MainClass.MESSAGE_READ, bytes, -1, buffer)
+                    mHandler.obtainMessage(BluetoothConnection.MESSAGE_READ, bytes, -1, buffer)
                             .sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
@@ -379,6 +375,7 @@ public class BluetoothSocket {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
+                mmOutStream.flush();
 
                 // Share the sent message back to the UI Activity
 //                mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
