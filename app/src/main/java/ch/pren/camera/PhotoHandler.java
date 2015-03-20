@@ -18,6 +18,7 @@ import java.util.Locale;
 public class PhotoHandler implements Camera.PictureCallback {
 
 
+    public static final String FILEPATH = Environment.getExternalStorageDirectory().getPath();
     private final Context context;
     private String DEBUG_TAG = "camera";
 
@@ -63,9 +64,43 @@ public class PhotoHandler implements Camera.PictureCallback {
         }
     }
 
+    public void savePictureToDir(byte[] data) {
+
+        File pictureFileDir = getDir();
+
+        if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
+
+            Log.d(DEBUG_TAG, "Can't create directory to save image.");
+            Toast.makeText(context, "Can't create directory to save image.", Toast.LENGTH_LONG).show();
+            return;
+
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String date = dateFormat.format(new Date());
+        String photoFile = "Picture_" + date + ".jpg";
+
+        String filename = pictureFileDir.getPath() + File.separator + photoFile;
+
+        File pictureFile = new File(filename);
+
+        try {
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            fos.write(data);
+            fos.close();
+            Toast.makeText(context, "New Image saved:" + photoFile,
+                    Toast.LENGTH_LONG).show();
+        } catch (Exception error) {
+            Log.d(DEBUG_TAG, "File" + filename + "not saved: "
+                    + error.getMessage());
+            Toast.makeText(context, "Image could not be saved.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     private File getDir() {
 
-        File sdDir =  new File(Environment.getExternalStorageDirectory().getPath());
+        File sdDir =  new File(FILEPATH);
         return new File(sdDir, "CameraAPIDemo");
     }
 }

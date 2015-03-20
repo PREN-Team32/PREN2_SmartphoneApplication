@@ -2,6 +2,8 @@ package ch.pren.detector;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
+
 import static ch.pren.detector.ImageHandler.WIDTH_TO_OBSERVE;
 import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
 
@@ -102,15 +104,15 @@ public class Detector {
         //Evaluate results
         zeitNachher = System.currentTimeMillis();
         this.gebrauchteZeit = zeitNachher - zeitVorher;
-        System.out.println("#Detektor: Object detected at X = " + objectBorder);
-        System.out.println("#Detektor: Bright | Dark Pixels = " + brightPixCount + " | " + darkPixCount);
-        System.out.println("#Detektor: Time used: " + gebrauchteZeit + " ms");
+        Log.d(DEBUG_TAG, "#Detektor: Object detected at X = " + objectBorder);
+        Log.d(DEBUG_TAG, "#Detektor: Bright | Dark Pixels = " + brightPixCount + " | " + darkPixCount);
+        Log.d(DEBUG_TAG, "#Detektor: Time used: " + gebrauchteZeit + " ms");
     }
 
     private int findObject(int mainArea) {
         int rgbCurrentPixel;
         int xCoordinate;
-        System.out.println("#Detektor: Attempting to find bucket..");
+        Log.d(DEBUG_TAG, "#Detektor: Attempting to find bucket..");
         //Seek shape of the basket, starting from the right side.
         if(mainArea < WIDTH_TO_OBSERVE/2) {
             xCoordinate = Integer.MIN_VALUE;
@@ -173,7 +175,7 @@ public class Detector {
         }
         this.mainAreaX = totalX/blackPixCount;
         this.mainAreaY = totalY/blackPixCount;
-        System.out.println("Found Main Area: " + mainAreaX);
+        Log.d(DEBUG_TAG, "Found Main Area: " + mainAreaX);
         return mainAreaX;
     }
 
@@ -183,8 +185,8 @@ public class Detector {
         int[] rgbToRight = new int[VISITED_PIXELS];
 
         for(int i = 0; i < VISITED_PIXELS; i++) {
-            rgbToLeft[i] = editedImage.getPixel(x - (i+1), y);
-            rgbToRight[i] = editedImage.getPixel(x + (i+1), y);
+            rgbToLeft[i] = editedImage.getPixel(x - (i + 1), y);
+            rgbToRight[i] = editedImage.getPixel(x + (i + 1), y);
         }
 
         if(fromLeft) {

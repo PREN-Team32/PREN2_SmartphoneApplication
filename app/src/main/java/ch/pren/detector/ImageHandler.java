@@ -2,6 +2,9 @@ package ch.pren.detector;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
 
 
 /**
@@ -36,11 +39,12 @@ public class ImageHandler {
             image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
 
             //Cut out the black borders (background)
-            finishedImage = Bitmap.createBitmap(image,(INITIAL_IMAGE_WIDTH-WIDTH_TO_OBSERVE)/2,(INITIAL_IMAGE_HEIGHT-HEIGHT_TO_OBSERVE)/2 , WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
+            finishedImage = Bitmap.createBitmap(image, (INITIAL_IMAGE_WIDTH - WIDTH_TO_OBSERVE) / 2, (INITIAL_IMAGE_HEIGHT - HEIGHT_TO_OBSERVE) / 2, WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
 
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
+        Log.d(DEBUG_TAG, "ImageHandler: Image loaded (from path)");
         return finishedImage;
     }
 
@@ -62,6 +66,7 @@ public class ImageHandler {
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
+        Log.d(DEBUG_TAG, "ImageHandler: Image loaded (with byte[])");
         return finishedImage;
     }
 }
