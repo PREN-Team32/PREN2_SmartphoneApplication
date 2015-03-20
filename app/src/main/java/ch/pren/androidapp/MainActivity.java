@@ -19,7 +19,7 @@ import ch.pren.camera.CameraPreview;
  */
 public class MainActivity extends Activity {
 
-    protected static final String DEBUG_TAG = "PREN_T32: ";
+    public static final String DEBUG_TAG = "PREN_T32: ";
     private Camera camera;
     private CameraPreview mPreview;
 
