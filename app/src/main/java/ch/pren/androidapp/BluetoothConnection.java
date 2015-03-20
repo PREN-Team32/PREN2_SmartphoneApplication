@@ -3,6 +3,7 @@ package ch.pren.androidapp;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
@@ -29,9 +30,10 @@ import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 import ch.pren.model.ConfigurationItem;
+import ch.pren.model.ValueItem;
 
 
-public class BluetoothConnection extends ActionBarActivity {
+public class BluetoothConnection extends Activity {
 
     private static final String TAG = "BluetoothActivity" ;
     private static final String ComputerName ="LIVIO-LAPTOP"; //Per Optione Änderbar mache, ned Hardcoded esch behinderet
@@ -123,8 +125,6 @@ public class BluetoothConnection extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        // If BT is not on, request that it be enabled.
-        // setupCommand() will then be called during onActivityResult
         if (!BA.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
@@ -148,16 +148,6 @@ public class BluetoothConnection extends ActionBarActivity {
 
     }
 
-
-    private void sendConfig(){ }
-
-    private void recieveConfig(){}
-
-    private void sendImage(){}
-
-
-    //Bluetooth Methods
-    //---------------------------------------------------------------------------------------------------------------------------
     private void setupCommand() {
         // Initialize the BluetoothChatService to perform bluetooth connections
         mCommandService = new BluetoothSocket(this, mHandler);
@@ -236,8 +226,11 @@ public class BluetoothConnection extends ActionBarActivity {
 
     public void onSendMessage(View view) {
 
-        ConfigurationItem confi = new ConfigurationItem();
-        confi.heightToObserve = 12;
+        ValueItem val = new ValueItem();
+        val.calculatedAngle = 12;
+        val.foundShape = true;
+        val.mainArea = 7;
+        val.totalTimeUsed = 42;
 
 
         sendText = (TextView) findViewById(R.id.txtViewSend);
@@ -249,7 +242,7 @@ public class BluetoothConnection extends ActionBarActivity {
         ObjectOutput out = null;
         try {
             out = new ObjectOutputStream(bos);
-            out.writeObject(confi);
+            out.writeObject(val);
             byte[] yourBytes = bos.toByteArray();
 
             mCommandService.write(yourBytes);
