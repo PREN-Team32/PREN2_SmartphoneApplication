@@ -1,7 +1,6 @@
 package ch.pren.androidapp;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -12,27 +11,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.io.ByteArrayOutputStream;
-
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
-import ch.pren.detector.Detector;
-import ch.pren.detector.ImageHandler;
-
-import static  ch.pren.camera.PhotoHandler.FILEPATH;
 
 /**
  * Created by Thomas on 20.03.2015.
  */
 public class MainActivity extends Activity {
 
-    public static final String DEBUG_TAG = "PREN_T32: ";
+    protected static final String DEBUG_TAG = "PREN_T32: ";
     private Camera camera;
     private CameraPreview mPreview;
-
-    // Testing save editedPicture from detector
-    private PhotoHandler photoHandler;
-
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +61,8 @@ public class MainActivity extends Activity {
      */
     public void onClickPhoto(View view) {
 
-
-
         camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-        Detector d = new Detector(FILEPATH);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        d.getEditedImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-        photoHandler.savePictureToDir(byteArray);
-
-        Log.d(DEBUG_TAG, "MainActivity: take Picture");
+        Log.d(DEBUG_TAG, "take Picture");
     }
 
     /**
@@ -89,7 +70,7 @@ public class MainActivity extends Activity {
      */
     Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
         public void onShutter() {
-            Log.d(DEBUG_TAG, "MainActivity: onShutter down");
+            Log.d(DEBUG_TAG, "onShutter down");
         }
     };
 
@@ -98,7 +79,7 @@ public class MainActivity extends Activity {
      */
     Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            Log.d(DEBUG_TAG, "MainActivity: onPictureTaken - raw");
+            Log.d(DEBUG_TAG, "onPictureTaken - raw");
         }
     };
 
@@ -107,9 +88,9 @@ public class MainActivity extends Activity {
      */
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            photoHandler = new PhotoHandler(getApplicationContext());
+            PhotoHandler photoHandler = new PhotoHandler(getApplicationContext());
             photoHandler.onPictureTaken(data,camera);
-            Log.d(DEBUG_TAG, "MainActivity: onPictureTaken - jpeg");
+            Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
     };
 }
