@@ -14,10 +14,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InterruptedIOException;
+import java.util.Objects;
 
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.detector.ImageHandler;
 
 import static ch.pren.camera.PhotoHandler.FILEPATH;
 
@@ -35,6 +38,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         //Bluetooth Connection aufbauen
 

@@ -54,13 +54,10 @@ public class PhotoHandler implements Camera.PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + photoFile,
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_LONG).show();
         } catch (Exception error) {
-            Log.d(DEBUG_TAG, "File" + filename + "not saved: "
-                    + error.getMessage());
-            Toast.makeText(context, "Image could not be saved.",
-                    Toast.LENGTH_LONG).show();
+            Log.d(DEBUG_TAG, "File" + filename + "not saved: " + error.getMessage());
+            Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -88,13 +85,10 @@ public class PhotoHandler implements Camera.PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + photoFile,
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_LONG).show();
         } catch (Exception error) {
-            Log.d(DEBUG_TAG, "File" + filename + "not saved: "
-                    + error.getMessage());
-            Toast.makeText(context, "Image could not be saved.",
-                    Toast.LENGTH_LONG).show();
+            Log.d(DEBUG_TAG, "File" + filename + "not saved: " + error.getMessage());
+            Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_LONG).show();
         }
     }
 

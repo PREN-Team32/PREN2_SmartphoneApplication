@@ -8,6 +8,10 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
+    <uses-feature android:name="android.hardware.usb.host"
+        android:required="true" />
+
+
 
     <application
         android:allowBackup="true"
@@ -23,21 +27,20 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            //USB-Detection intent
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
 
-            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED">
+            // Livio: Hier dieser Intent-Filter für USB war das Problem!
+            // habe stattdessen uses-feature oben eingefügt....
 
-            </meta-data>
+
         </activity>
         <activity
             android:name=".DeviceListActivity"
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Dialog"
             android:configChanges="orientation|keyboardHidden" />
-        <activity android:name=".BluetoothConnection"></activity>
+        <activity android:name=".BluetoothConnection"
+                  android:label="BluetoothConnection" />
+
 
     </application>
 
