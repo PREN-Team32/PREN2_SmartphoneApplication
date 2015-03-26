@@ -8,10 +8,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+
+import ch.pren.model.ConfigurationItem;
+import ch.pren.model.ValueItem;
 
 public class BluetoothSocket {
     // Debugging
@@ -356,6 +362,10 @@ public class BluetoothSocket {
                     // Read from the InputStream
                     int bytes = mmInStream.read(buffer);
 
+
+                    //Recieves the sended Data from the Computer -> Wow such english, much good
+                    recieveData(buffer);
+
                     // Send the obtained bytes to the UI Activity
                     mHandler.obtainMessage(BluetoothConnection.MESSAGE_READ, bytes, -1, buffer)
                             .sendToTarget();
@@ -366,6 +376,40 @@ public class BluetoothSocket {
                 }
             }
         }
+
+        public void recieveData(byte[] myBytes) throws IOException {
+            ByteArrayInputStream bis = new ByteArrayInputStream(myBytes);
+            ObjectInput in = null;
+
+
+            ConfigurationItem conf = new ConfigurationItem();
+
+
+            try {
+                in = new ObjectInputStream(bis);
+
+                conf = (ConfigurationItem) in.readObject();
+
+                //String what = o.toString();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    bis.close();
+                } catch (IOException ex) {
+                    // ignore close exception
+                }
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException ex) {
+                    // ignore close exception
+                }
+
+            }
+        }
+
 
         /**
          * Write to the connected OutStream.

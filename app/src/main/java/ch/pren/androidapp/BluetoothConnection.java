@@ -3,10 +3,8 @@ package ch.pren.androidapp;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 //Bluetooth imports
@@ -16,20 +14,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.util.UUID;
 
-import ch.pren.model.ConfigurationItem;
 import ch.pren.model.ValueItem;
 
 
@@ -72,52 +61,25 @@ public class BluetoothConnection extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main_class);
+            setContentView(R.layout.bluetoothconn);
 
-            mTitle = (TextView) findViewById(R.id.txtView);
 
             //Bluetooth Adapter initialiesieren & Auf Handy einschalten
             BA = BluetoothAdapter.getDefaultAdapter();
-            //Sett de Adapter forcefully enable
-            BluetoothAdapter.getDefaultAdapter().enable();
-
 
             //Checks if the device has a Bluetooth Adapter
-            if(BA.isEnabled()) {
-
-
-            } else {
-                Log.e(TAG, "No Bluetooth Adapter available!");
-                this.finish();
+            if (BA == null) {
+                Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+                finish();
+                return;
             }
 
-            TextView txtView = (TextView) this.findViewById(R.id.txtView);
+            mTitle = (TextView) this.findViewById(R.id.txtView);
+            //TextView txtView = (TextView) this.findViewById(R.id.txtView);
         }
         catch(Exception e){
             Log.e(e.getMessage(), "Fehler onCreate aufgetreten");
 
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Performing this check in onResume() covers the case in which BT was
-        // not enabled during onStart(), so we were paused to enable it...
-        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mCommandService != null) {
-            if (mCommandService.getState() != BluetoothSocket.STATE_NONE) {
-                mCommandService.start();
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mCommandService != null) {
-            mCommandService.stop();
         }
     }
 
@@ -131,10 +93,34 @@ public class BluetoothConnection extends Activity {
         }
         // otherwise set up the command service
         else {
-            if (mCommandService==null)
+            if (mCommandService == null)
                 setupCommand();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Performing this check in onResume() covers the case in which BT was
+        // not enabled during onStart(), so we were paused to enable it...
+        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
+        if (mCommandService != null) {
+            if (mCommandService.getState() == BluetoothSocket.STATE_NONE) {
+                mCommandService.start();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mCommandService != null) {
+            mCommandService.stop();
+        }
+    }
+
+
 
 
     public void onSearchDevices(View view) {

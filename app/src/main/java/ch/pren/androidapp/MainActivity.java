@@ -1,6 +1,7 @@
 package ch.pren.androidapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.AudioManager;
@@ -86,8 +87,9 @@ public class MainActivity extends Activity {
 
         if (camera != null) {
             mPreview.mCamera.stopPreview();
-            camera.stopPreview();
-            camera.release();
+            //Livio Bastelkurscode
+            //camera.stopPreview();
+            //camera.release();
             camera = null;
         }
 
@@ -131,4 +133,11 @@ public class MainActivity extends Activity {
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
     };
+
+    public void onClickBluetooth(View view) {
+        camera.stopPreview();
+        camera.release();
+        Intent intent = new Intent(this, BluetoothConnection.class);
+        startActivity(intent);
+    }
 }
