@@ -87,9 +87,10 @@ public class MainActivity extends Activity {
 
         if (camera != null) {
             mPreview.mCamera.stopPreview();
-            //Livio Bastelkurscode
-            //camera.stopPreview();
-            //camera.release();
+            mPreview.getHolder().removeCallback(mPreview);
+            camera.stopPreview();
+            camera.setPreviewCallback(null);
+            camera.release();
             camera = null;
         }
 
