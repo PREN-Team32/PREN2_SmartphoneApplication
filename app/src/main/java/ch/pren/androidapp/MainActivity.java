@@ -43,18 +43,17 @@ public class MainActivity extends Activity {
 
         //Bluetooth Connection aufbauen
 
-//        try {
-//            camera = Camera.open();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        camera.setDisplayOrientation(90);
-//
-//        mPreview = new CameraPreview(this, camera);
+       try {
+            camera = Camera.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-//        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-//        preview.addView(mPreview);
+       camera.setDisplayOrientation(90);
+        mPreview = new CameraPreview(this, camera);
+
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
 
 
     }
