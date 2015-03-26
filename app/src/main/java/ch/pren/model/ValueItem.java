@@ -9,6 +9,21 @@ import java.io.Serializable;
  * @author Niklaus
  */
 public class ValueItem implements Serializable {
+
+    private static ValueItem instance = null;
+
+
+    protected ValueItem() {
+    }
+
+    public static ValueItem getInstance() {
+        if (instance == null) {
+            instance = new ValueItem();
+        }
+        return instance;
+    }
+
+
     public File originalImage;
     public File editedImage;
 

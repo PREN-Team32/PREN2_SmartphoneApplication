@@ -1,5 +1,6 @@
 package ch.pren.model;
 
+
 import java.io.Serializable;
 
 /**
@@ -8,6 +9,19 @@ import java.io.Serializable;
  * @author Nikk
  */
 public class ConfigurationItem implements Serializable {
+    private static ConfigurationItem instance = null;
+
+
+    protected ConfigurationItem() {
+    }
+
+    public static ConfigurationItem getInstance() {
+        if (instance == null) {
+            instance = new ConfigurationItem();
+        }
+        return instance;
+    }
+
     public int luminanceThreshold;
 
     //Width & Height which will be analysed (Rest of Image will be cut off)

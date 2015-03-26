@@ -212,7 +212,7 @@ public class BluetoothConnection extends Activity {
 
     public void onSendMessage(View view) {
 
-        ValueItem val = new ValueItem();
+        ValueItem val = ValueItem.getInstance();
         val.calculatedAngle = 12;
         val.foundShape = true;
         val.mainArea = 7;

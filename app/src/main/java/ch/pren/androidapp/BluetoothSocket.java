@@ -382,7 +382,7 @@ public class BluetoothSocket {
             ObjectInput in = null;
 
 
-            ConfigurationItem conf = new ConfigurationItem();
+            ConfigurationItem conf = ConfigurationItem.getInstance();
 
 
             try {
