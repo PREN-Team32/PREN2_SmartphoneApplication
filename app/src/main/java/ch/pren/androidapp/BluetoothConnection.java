@@ -3,6 +3,8 @@ package ch.pren.androidapp;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
@@ -15,7 +17,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
@@ -31,9 +35,8 @@ public class BluetoothConnection extends Activity {
     private BluetoothAdapter BA = null;
 
 
-    //Für Tests
     private TextView mTitle;
-    private TextView sendText;
+
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
@@ -75,7 +78,6 @@ public class BluetoothConnection extends Activity {
             }
 
             mTitle = (TextView) this.findViewById(R.id.txtView);
-            //TextView txtView = (TextView) this.findViewById(R.id.txtView);
         }
         catch(Exception e){
             Log.e(e.getMessage(), "Fehler onCreate aufgetreten");
@@ -219,13 +221,13 @@ public class BluetoothConnection extends Activity {
         val.totalTimeUsed = 42;
 
 
-        sendText = (TextView) findViewById(R.id.txtViewSend);
-
-
 
         //Test Object to Byte
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = null;
+
+
+        val.originalImage = bitmaptobyte();
         try {
             out = new ObjectOutputStream(bos);
             out.writeObject(val);
@@ -248,6 +250,15 @@ public class BluetoothConnection extends Activity {
                 // ignore close exception
             }
         }
+    }
+
+    public byte[] bitmaptobyte() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Bitmap image = BitmapFactory.decodeFile("/storage/emulated/0/Download/doge.gif");
+        image.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] bytes = bos.toByteArray();
+
+        return bytes;
     }
 
 

@@ -43,18 +43,18 @@ public class MainActivity extends Activity {
 
         //Bluetooth Connection aufbauen
 
-        try {
-            camera = Camera.open();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            camera = Camera.open();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        camera.setDisplayOrientation(90);
+//
+//        mPreview = new CameraPreview(this, camera);
 
-        camera.setDisplayOrientation(90);
-
-        mPreview = new CameraPreview(this, camera);
-
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
+//        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+//        preview.addView(mPreview);
 
 
     }
@@ -92,7 +92,6 @@ public class MainActivity extends Activity {
             //camera.release();
             camera = null;
         }
-
     }
 
     /**
@@ -135,8 +134,7 @@ public class MainActivity extends Activity {
     };
 
     public void onClickBluetooth(View view) {
-        camera.stopPreview();
-        camera.release();
+
         Intent intent = new Intent(this, BluetoothConnection.class);
         startActivity(intent);
     }
