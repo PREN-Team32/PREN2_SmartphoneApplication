@@ -2,6 +2,7 @@ package ch.pren.androidapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.AudioManager;
@@ -41,15 +42,18 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
 
-        //Bluetooth Connection aufbauen
-
        try {
             camera = Camera.open();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-       camera.setDisplayOrientation(90);
+        /*
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setRotation(90);
+        parameters.setFocusMode(parameters.FOCUS_MODE_AUTO);
+        */
+        camera.setDisplayOrientation(90);
         mPreview = new CameraPreview(this, camera);
 
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -129,9 +133,22 @@ public class MainActivity extends Activity {
         public void onPictureTaken(byte[] data, Camera camera) {
             photoHandler = new PhotoHandler(getApplicationContext());
             photoHandler.onPictureTaken(data,camera);
+            detectBasket(data);
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
     };
+
+
+    public void detectBasket(byte[] rawImage){
+        Detector detector = new Detector(rawImage);
+
+        Log.d(DEBUG_TAG, detector.getEditedImage().toString());
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        detector.getEditedImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        photoHandler.savePictureToDir(byteArray);
+
+    }
 
     public void onClickBluetooth(View view) {
 

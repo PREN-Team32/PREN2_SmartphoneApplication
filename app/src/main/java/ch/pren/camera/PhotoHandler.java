@@ -42,7 +42,7 @@ public class PhotoHandler implements Camera.PictureCallback {
 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         String date = dateFormat.format(new Date());
         String photoFile = "Picture_" + date + ".jpg";
 
@@ -54,10 +54,10 @@ public class PhotoHandler implements Camera.PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
             Log.d(DEBUG_TAG, "File" + filename + "not saved: " + error.getMessage());
-            Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -68,12 +68,12 @@ public class PhotoHandler implements Camera.PictureCallback {
         if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
 
             Log.d(DEBUG_TAG, "Can't create directory to save image.");
-            Toast.makeText(context, "Can't create directory to save image.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Can't create directory to save image.", Toast.LENGTH_SHORT).show();
             return;
 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         String date = dateFormat.format(new Date());
         String photoFile = "Picture_" + date + ".jpg";
 
@@ -85,16 +85,16 @@ public class PhotoHandler implements Camera.PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
             Log.d(DEBUG_TAG, "File" + filename + "not saved: " + error.getMessage());
-            Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private File getDir() {
 
         File sdDir =  new File(FILEPATH);
-        return new File(sdDir, "CameraAPIDemo");
+        return new File(sdDir, "PREN_T32");
     }
 }

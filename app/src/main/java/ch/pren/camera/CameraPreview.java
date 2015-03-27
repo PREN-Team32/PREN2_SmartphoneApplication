@@ -24,7 +24,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         this.mSurfaceHolder = this.getHolder();
         this.mSurfaceHolder.addCallback(this); // we get notified when underlying surface is created and destroyed
-        this.mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS); //this is a deprecated method, is not requierd after 3.0
+        this.mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS); //this is a deprecated method, is not required after 3.0
     }
 
     @Override

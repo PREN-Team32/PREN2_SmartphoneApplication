@@ -46,6 +46,11 @@ public class Detector {
         editedImage = originalImage;
     }
 
+    public Detector(byte[] rawImage) {
+        originalImage = ImageHandler.loadImage(rawImage);
+        editedImage = originalImage;
+    }
+
     public Bitmap getEditedImage() {
         return editedImage;
     }
