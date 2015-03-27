@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InterruptedIOException;
@@ -141,10 +142,11 @@ public class MainActivity extends Activity {
 
     public void detectBasket(byte[] rawImage){
         Detector detector = new Detector(rawImage);
+        detector.start();
 
         Log.d(DEBUG_TAG, detector.getEditedImage().toString());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        detector.getEditedImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        detector.getEditedImage().compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
         photoHandler.savePictureToDir(byteArray);
 
