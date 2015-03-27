@@ -28,6 +28,7 @@ import ch.pren.bluetooth.BluetoothConnection;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.multimedia.SoundHandler;
 import ch.pren.usbconnector.UsbService;
 
 /**
@@ -163,9 +164,10 @@ public class MainActivity extends Activity {
         byte[] sendArray = new byte[1];
         sendArray[0] = angle;
 
-        if(usbService != null) { // if UsbService was correctly binded, Send data
+        if(usbService != null) { // if UsbService was correctly bounded, send data
             try {
                 usbService.write(sendArray);
+                Toast.makeText(context, "Sent data: " + angle, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -177,6 +179,15 @@ public class MainActivity extends Activity {
         editedImage.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
         photoHandler.savePictureToDir(byteArray);
+    }
+
+    private void onReceivedFromBoard(final String receivedData){
+        SoundHandler soundHandler = new SoundHandler(this);
+        if(receivedData.equals("f")){
+            soundHandler.play();
+            // TODO: Zeit stoppen von photoclick bis hier
+            Toast.makeText(context, "GAME FINISHED", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -223,7 +234,7 @@ public class MainActivity extends Activity {
     }
 
     /*
-	 * This handler will be passed to UsbService. Dara received from serial port is displayed through this handler
+	 * This handler will be passed to UsbService. Data received from serial port is displayed through this handler
 	 */
     private class MyHandler extends Handler
     {
@@ -237,7 +248,7 @@ public class MainActivity extends Activity {
             {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     String data = (String) msg.obj;
-                    Toast.makeText(context, "Sent data: " + data, Toast.LENGTH_SHORT).show();
+                    onReceivedFromBoard(data);
                     break;
             }
         }
