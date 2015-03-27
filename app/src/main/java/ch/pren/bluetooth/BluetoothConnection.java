@@ -1,4 +1,4 @@
-package ch.pren.androidapp;
+package ch.pren.bluetooth;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
@@ -17,19 +17,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import ch.pren.androidapp.R;
 import ch.pren.model.ValueItem;
 
 
 public class BluetoothConnection extends Activity {
-
-    private static final String TAG = "BluetoothActivity" ;
-    private static final String ComputerName ="LIVIO-LAPTOP"; //Per Optione Änderbar mache, ned Hardcoded esch behinderet
 
 
     private BluetoothAdapter BA = null;
@@ -44,7 +40,7 @@ public class BluetoothConnection extends Activity {
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
+    //public static final int MESSAGE_WRITE = 3;
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
 

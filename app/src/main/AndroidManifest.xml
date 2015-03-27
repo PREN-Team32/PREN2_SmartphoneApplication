@@ -34,11 +34,12 @@
 
         </activity>
         <activity
-            android:name=".DeviceListActivity"
+            android:name="ch.pren.bluetooth.DeviceListActivity"
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Dialog"
             android:configChanges="orientation|keyboardHidden" />
-        <activity android:name=".BluetoothConnection"
+        <activity
+            android:name="ch.pren.bluetooth.BluetoothConnection"
                   android:label="BluetoothConnection" />
 
 

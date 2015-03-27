@@ -2,13 +2,9 @@ package ch.pren.androidapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.Bundle;
-import android.test.ActivityTestCase;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,15 +12,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InterruptedIOException;
-import java.util.Objects;
 
+import ch.pren.bluetooth.BluetoothConnection;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
-import ch.pren.detector.ImageHandler;
-
-import static ch.pren.camera.PhotoHandler.FILEPATH;
 
 /**
  * Created by Thomas on 20.03.2015.
