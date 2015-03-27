@@ -24,7 +24,7 @@ public class ImageHandler {
         ImageHandler.HEIGHT_TO_OBSERVE = HEIGHT_TO_OBSERVE;
     }
 
-    public static Bitmap loadImage(String filepath) {
+    public static Bitmap loadImage(final String filepath) {
 
         Bitmap image;
         Bitmap tmp;

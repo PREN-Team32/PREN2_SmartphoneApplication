@@ -21,7 +21,7 @@ import java.util.Locale;
 public class PhotoHandler implements Camera.PictureCallback {
 
 
-    public static final String FILEPATH = Environment.getExternalStorageDirectory().getPath();
+    public static final String FILEPATH = "storage/emulated/0/Download";
     private final Context context;
     private String DEBUG_TAG = "camera";
 
