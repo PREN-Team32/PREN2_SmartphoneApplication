@@ -1,11 +1,14 @@
 package ch.pren.camera;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -32,7 +35,6 @@ public class PhotoHandler implements Camera.PictureCallback {
 
         File pictureFileDir = getDir();
 
-        //TODO File abspeichern und/oder byte[] direkt an ImageHandler senden?
 
         if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
 
@@ -41,6 +43,12 @@ public class PhotoHandler implements Camera.PictureCallback {
             return;
 
         }
+
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50 , stream);
+        byte[] bitmapData = stream.toByteArray();
+
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
         String date = dateFormat.format(new Date());
@@ -52,7 +60,7 @@ public class PhotoHandler implements Camera.PictureCallback {
 
         try {
             FileOutputStream fos = new FileOutputStream(pictureFile);
-            fos.write(data);
+            fos.write(bitmapData);
             fos.close();
             Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
