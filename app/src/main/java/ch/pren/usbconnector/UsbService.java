@@ -174,17 +174,12 @@ public class UsbService extends Service
         @Override
         public void onReceivedData(byte[] arg0) {
             Log.d("thomSerial", "onReceivedData() ");
-
             try {
-
-                String data3 = new String(arg0, "UTF-8");
-
+                String data = new String(arg0, "UTF-8");
                 if (mHandler != null)
-                    mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, data3).sendToTarget();
+                    mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, data).sendToTarget();
 
-                Log.d("thomSerial", "This msg should be sent to Handler _ data3: " + data3);
-
-
+                Log.d("thomSerial", "This msg should be sent to Handler _ data3: " + data);
             } catch (Exception e) {
                 e.printStackTrace();
             }

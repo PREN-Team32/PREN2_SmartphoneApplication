@@ -154,29 +154,22 @@ public class MainActivity extends Activity {
 
     private void detectBasket(byte[] rawImage){
         Detector detector = new Detector(rawImage);
-        detector.start();
-
-        // new Angle => detector.findObject int verwenden
-        // send: angle ist  in byte
-
+        byte calculatedAngle = detector.start();
+        sendAngleToBoard(calculatedAngle);
         saveEditedImageInDir(detector.getEditedImage());
-
     }
 
     private void sendAngleToBoard(final byte angle){
         byte[] sendArray = new byte[1];
         sendArray[0] = angle;
 
-        if(usbService != null) // if UsbService was correctly binded, Send data
+        if(usbService != null) { // if UsbService was correctly binded, Send data
             try {
                 usbService.write(sendArray);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage());
             }
-
-
-
-
+        }
     }
 
     private void saveEditedImageInDir(final Bitmap editedImage){
