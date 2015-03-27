@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.pren.androidapp;
+package ch.pren.bluetooth;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -36,6 +36,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.Set;
+
+import ch.pren.androidapp.R;
 
 /**
  * This Activity appears as a dialog. It lists any paired devices and
@@ -78,8 +80,8 @@ public class DeviceListActivity extends Activity {
 
         // Initialize array adapters. One for already paired devices and
         // one for newly discovered devices
-        mPairedDevicesArrayAdapter = new ArrayAdapter<String>(this, R.layout.device_name);
-        mNewDevicesArrayAdapter = new ArrayAdapter<String>(this, R.layout.device_name);
+        mPairedDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
+        mNewDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
 
         // Find and set up the ListView for paired devices
         ListView pairedListView = (ListView) findViewById(R.id.paired_devices);
