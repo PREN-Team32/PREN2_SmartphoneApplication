@@ -1,10 +1,18 @@
 package ch.pren.androidapp;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,11 +21,14 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.ref.WeakReference;
+import java.util.Set;
 
 import ch.pren.bluetooth.BluetoothConnection;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.usbconnector.UsbService;
 
 /**
  * Created by Thomas on 20.03.2015.
@@ -28,11 +39,18 @@ public class MainActivity extends Activity {
     private Camera camera;
     private CameraPreview mPreview;
     private PhotoHandler photoHandler;
+    private Context context = this.getApplicationContext();
+    private UsbService usbService;
+    private MyHandler mHandler;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mHandler = new MyHandler();
+        setFilters();  // Start listening notifications from UsbService
+        startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
 
 
        try {
@@ -89,6 +107,8 @@ public class MainActivity extends Activity {
             camera.release();
             camera = null;
         }
+        unregisterReceiver(mUsbReceiver);
+        unbindService(usbConnection);
     }
 
     /**
@@ -132,21 +152,146 @@ public class MainActivity extends Activity {
     };
 
 
-    public void detectBasket(byte[] rawImage){
+    private void detectBasket(byte[] rawImage){
         Detector detector = new Detector(rawImage);
         detector.start();
 
-        Log.d(DEBUG_TAG, detector.getEditedImage().toString());
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        detector.getEditedImage().compress(Bitmap.CompressFormat.JPEG, 50, stream);
-        byte[] byteArray = stream.toByteArray();
-        photoHandler.savePictureToDir(byteArray);
+        // new Angle => detector.findObject int verwenden
+        // send: angle ist  in byte
+
+        saveEditedImageInDir(detector.getEditedImage());
 
     }
+
+    private void sendAngleToBoard(final byte angle){
+        byte[] sendArray = new byte[1];
+        sendArray[0] = angle;
+
+        if(usbService != null) // if UsbService was correctly binded, Send data
+            try {
+                usbService.write(sendArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+
+
+    }
+
+    private void saveEditedImageInDir(final Bitmap editedImage){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        editedImage.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+        byte[] byteArray = stream.toByteArray();
+        photoHandler.savePictureToDir(byteArray);
+    }
+
 
     public void onClickBluetooth(View view) {
 
         Intent intent = new Intent(this, BluetoothConnection.class);
         startActivity(intent);
     }
+
+
+
+
+    //   ----------------------------- Innere Klassen + Helper Methoden ----------------------------------------------
+
+    private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras)
+    {
+        if(!UsbService.SERVICE_CONNECTED)
+        {
+            Intent startService = new Intent(this, service);
+            if(extras != null && !extras.isEmpty())
+            {
+                Set<String> keys = extras.keySet();
+                for(String key: keys)
+                {
+                    String extra = extras.getString(key);
+                    startService.putExtra(key, extra);
+                }
+            }
+            startService(startService);
+        }
+        Intent bindingIntent = new Intent(this, service);
+        bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void setFilters()
+    {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbService.ACTION_USB_PERMISSION_GRANTED);
+        filter.addAction(UsbService.ACTION_NO_USB);
+        filter.addAction(UsbService.ACTION_USB_DISCONNECTED);
+        filter.addAction(UsbService.ACTION_USB_NOT_SUPPORTED);
+        filter.addAction(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED);
+        registerReceiver(mUsbReceiver, filter);
+    }
+
+    /*
+	 * This handler will be passed to UsbService. Dara received from serial port is displayed through this handler
+	 */
+    private class MyHandler extends Handler
+    {
+        public MyHandler() {
+        }
+
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch(msg.what)
+            {
+                case UsbService.MESSAGE_FROM_SERIAL_PORT:
+                    String data = (String) msg.obj;
+                    Toast.makeText(context, "Sent data: " + data, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
+
+    /*
+	 * Notifications from UsbService will be received here.
+	 */
+    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context arg0, Intent arg1)
+        {
+            if(arg1.getAction().equals(UsbService.ACTION_USB_PERMISSION_GRANTED)) // USB PERMISSION GRANTED
+            {
+                Toast.makeText(arg0, "USB Ready", Toast.LENGTH_SHORT).show();
+            }else if(arg1.getAction().equals(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED)) // USB PERMISSION NOT GRANTED
+            {
+                Toast.makeText(arg0, "USB Permission not granted", Toast.LENGTH_SHORT).show();
+            }else if(arg1.getAction().equals(UsbService.ACTION_NO_USB)) // NO USB CONNECTED
+            {
+                Toast.makeText(arg0, "No USB connected", Toast.LENGTH_SHORT).show();
+            }else if(arg1.getAction().equals(UsbService.ACTION_USB_DISCONNECTED)) // USB DISCONNECTED
+            {
+                Toast.makeText(arg0, "USB disconnected", Toast.LENGTH_SHORT).show();
+            }else if(arg1.getAction().equals(UsbService.ACTION_USB_NOT_SUPPORTED)) // USB NOT SUPPORTED
+            {
+                Toast.makeText(arg0, "USB device not supported", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
+    private final ServiceConnection usbConnection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName arg0, IBinder arg1)
+        {
+            usbService = ((UsbService.UsbBinder) arg1).getService();
+            usbService.setHandler(mHandler);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0)
+        {
+            usbService = null;
+        }
+    };
+
+
 }
