@@ -21,7 +21,7 @@ import java.util.Locale;
 public class PhotoHandler implements Camera.PictureCallback {
 
 
-    public static final String FILEPATH = "storage/emulated/0/Download";
+    public static final String FILEPATH = "storage/emulated/0/Download/PREN_T32";
     private final Context context;
     private String DEBUG_TAG = "camera";
 
@@ -30,6 +30,13 @@ public class PhotoHandler implements Camera.PictureCallback {
         this.context = context;
     }
 
+    /**
+     * Wichtig!! Diese Methode speichert das raw-Image das direkt von der Camera kommt.
+     * Das edited Image vom Detektor (SW-Bild) wird in der Methode unten (savePictureToDir)
+     * gespeichert. Bitte Richtig verweden!
+     * @param data
+     * @param camera
+     */
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
 
@@ -49,12 +56,10 @@ public class PhotoHandler implements Camera.PictureCallback {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50 , stream);
         byte[] bitmapData = stream.toByteArray();
 
+        // ------ raw-Image ----------------------
+        String photoFile = "picture.jpg";
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-        String date = dateFormat.format(new Date());
-        String photoFile = "Picture_" + date + ".jpg";
-
-        String filename = pictureFileDir.getPath() + File.separator + photoFile;
+        String filename = pictureFileDir.getPath() + photoFile;
 
         File pictureFile = new File(filename);
 
@@ -62,13 +67,18 @@ public class PhotoHandler implements Camera.PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(bitmapData);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "New Image saved:  " + photoFile, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
             Log.d(DEBUG_TAG, "File" + filename + "not saved: " + error.getMessage());
             Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Wichtig!! Diese Methode speichert das edited-Image dasvom Detektor (SW-Bild) kommt.
+     *
+     * @param data
+     */
     public void savePictureToDir(byte[] data) {
 
         File pictureFileDir = getDir();
@@ -81,11 +91,11 @@ public class PhotoHandler implements Camera.PictureCallback {
 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
-        String date = dateFormat.format(new Date());
-        String photoFile = "Picture_" + date + ".jpg";
 
-        String filename = pictureFileDir.getPath() + File.separator + photoFile;
+        // -------------- edited Image ------------------------------
+        String photoFile = "editedPicture.jpg";
+
+        String filename = pictureFileDir.getPath() + photoFile;
 
         File pictureFile = new File(filename);
 
@@ -93,9 +103,9 @@ public class PhotoHandler implements Camera.PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + photoFile, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "New Image saved:  " + photoFile, Toast.LENGTH_SHORT).show();
         } catch (Exception error) {
-            Log.d(DEBUG_TAG, "File" + filename + "not saved: " + error.getMessage());
+            Log.d(DEBUG_TAG, "File " + filename + " not saved: " + error.getMessage());
             Toast.makeText(context, "Image could not be saved.", Toast.LENGTH_SHORT).show();
         }
     }

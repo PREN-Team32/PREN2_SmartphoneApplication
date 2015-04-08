@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
     private Camera camera;
     private CameraPreview mPreview;
     private PhotoHandler photoHandler;
-    private Context context = this.getApplicationContext();
+    private Context context;
     private UsbService usbService;
     private MyHandler mHandler;
 
@@ -48,6 +48,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Context NICHT vor onCreate() beziehen! (stadessen wie hier mittels Methode nach OnCreate)
+        context = getAppContext();
 
         mHandler = new MyHandler();
         setFilters();  // Start listening notifications from UsbService
@@ -145,7 +148,7 @@ public class MainActivity extends Activity {
      */
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            photoHandler = new PhotoHandler(getApplicationContext());
+            photoHandler = new PhotoHandler(context);
             photoHandler.onPictureTaken(data,camera);
             detectBasket(data);
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
@@ -181,7 +184,7 @@ public class MainActivity extends Activity {
         photoHandler.savePictureToDir(byteArray);
     }
 
-    private void onReceivedFromBoard(final String receivedData){
+    private void onReceiveFromBoard(final String receivedData){
         SoundHandler soundHandler = new SoundHandler(this);
         if(receivedData.equals("f")){
             soundHandler.play();
@@ -248,7 +251,7 @@ public class MainActivity extends Activity {
             {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     String data = (String) msg.obj;
-                    onReceivedFromBoard(data);
+                    onReceiveFromBoard(data);
                     break;
             }
         }
@@ -296,6 +299,10 @@ public class MainActivity extends Activity {
             usbService = null;
         }
     };
+
+    private Context getAppContext(){
+        return this.getApplicationContext();
+    }
 
 
 }
