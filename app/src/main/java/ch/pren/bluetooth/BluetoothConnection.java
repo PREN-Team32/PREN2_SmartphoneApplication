@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 //Bluetooth imports
 
@@ -74,8 +75,7 @@ public class BluetoothConnection extends Activity {
             }
 
             mTitle = (TextView) this.findViewById(R.id.txtView);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Log.e(e.getMessage(), "Fehler onCreate aufgetreten");
 
         }
@@ -119,8 +119,6 @@ public class BluetoothConnection extends Activity {
     }
 
 
-
-
     public void onSearchDevices(View view) {
         setDiscoverable();
     }
@@ -152,17 +150,17 @@ public class BluetoothConnection extends Activity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                        case MESSAGE_STATE_CHANGE:
-                            switch (msg.arg1) {
-                                case BluetoothSocket.STATE_CONNECTED:
-                                    mTitle.setText(R.string.title_connected_to);
-                                    mTitle.append(mConnectedDeviceName);
-                                    break;
-                                case BluetoothSocket.STATE_CONNECTING:
-                                    mTitle.setText(R.string.title_connecting);
-                                    break;
-                                case BluetoothSocket.STATE_LISTEN:
-                                case BluetoothSocket.STATE_NONE:
+                case MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case BluetoothSocket.STATE_CONNECTED:
+                            mTitle.setText(R.string.title_connected_to);
+                            mTitle.append(mConnectedDeviceName);
+                            break;
+                        case BluetoothSocket.STATE_CONNECTING:
+                            mTitle.setText(R.string.title_connecting);
+                            break;
+                        case BluetoothSocket.STATE_LISTEN:
+                        case BluetoothSocket.STATE_NONE:
                             mTitle.setText(R.string.title_not_connected);
                             break;
                     }
@@ -217,18 +215,33 @@ public class BluetoothConnection extends Activity {
         val.totalTimeUsed = 42;
 
 
-
         //Test Object to Byte
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = null;
 
 
-        val.originalImage = bitmaptobyte();
+        //val.originalImage = bitmaptoBase64();
+        //val.editedImage = bitmaptoBase64();
+
+        byte[] bitels = new byte[1024];
+
+        for (int i = 0; i < bitels.length; i++) {
+            bitels[i] = 7;
+        }
+
+        //val.editedImage = bitels;
+        val.originalImage = bitmaptoBase64();
+
+        //String WhattheFuckisintTheBase64String = val.originalImage;
+
         try {
             out = new ObjectOutputStream(bos);
+            out.flush();
             out.writeObject(val);
-            byte[] yourBytes = bos.toByteArray();
 
+
+            byte[] yourBytes = bos.toByteArray();
+            out.flush();
             mCommandService.write(yourBytes);
         } catch (IOException e) {
             e.printStackTrace();
@@ -248,16 +261,17 @@ public class BluetoothConnection extends Activity {
         }
     }
 
-    public byte[] bitmaptobyte() {
+    public String bitmaptoBase64() {
+        String bildli = "";
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Bitmap image = BitmapFactory.decodeFile("/storage/emulated/0/Download/doge.gif");
-        image.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        Bitmap image = BitmapFactory.decodeFile("/storage/emulated/0/Download/Testphoto.jpg");
+        image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         byte[] bytes = bos.toByteArray();
 
-        return bytes;
+        return bildli = Base64.encodeToString(bytes, Base64.DEFAULT);
+
+        //return bytes;
     }
-
-
 }
 
 
