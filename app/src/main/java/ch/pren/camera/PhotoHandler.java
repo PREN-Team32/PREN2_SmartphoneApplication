@@ -21,7 +21,7 @@ import java.util.Locale;
 public class PhotoHandler implements Camera.PictureCallback {
 
 
-    public static final String FILEPATH = "storage/emulated/0/Download/PREN_T32";
+    public static final String FILEPATH = "storage/emulated/0/";
     private final Context context;
     private String DEBUG_TAG = "camera";
 
@@ -59,7 +59,7 @@ public class PhotoHandler implements Camera.PictureCallback {
         // ------ raw-Image ----------------------
         String photoFile = "picture.jpg";
 
-        String filename = pictureFileDir.getPath() + photoFile;
+        String filename = pictureFileDir.getPath() + File.separator + photoFile;
 
         File pictureFile = new File(filename);
 
@@ -95,7 +95,7 @@ public class PhotoHandler implements Camera.PictureCallback {
         // -------------- edited Image ------------------------------
         String photoFile = "editedPicture.jpg";
 
-        String filename = pictureFileDir.getPath() + photoFile;
+        String filename = pictureFileDir.getPath() + File.separator + photoFile;
 
         File pictureFile = new File(filename);
 

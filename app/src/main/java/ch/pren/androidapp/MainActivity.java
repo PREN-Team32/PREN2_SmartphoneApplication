@@ -161,6 +161,7 @@ public class MainActivity extends Activity {
         byte calculatedAngle = detector.start();
         sendAngleToBoard(calculatedAngle);
         saveEditedImageInDir(detector.getEditedImage());
+
     }
 
     private void sendAngleToBoard(final byte angle){
