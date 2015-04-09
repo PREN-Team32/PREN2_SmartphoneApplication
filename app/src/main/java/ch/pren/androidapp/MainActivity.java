@@ -163,6 +163,9 @@ public class MainActivity extends Activity {
         byte calculatedAngle = detector.start();
         sendAngleToBoard(calculatedAngle);
         valueItem.calculatedAngle = calculatedAngle;
+        valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
+        valueItem.mainArea = detector.getMainAreaX();
+        valueItem.foundShape = detector.getIsBucketShape();
         saveEditedImageInDir(detector.getEditedImage());
     }
 

@@ -22,6 +22,7 @@ public class Detector {
     private int mainAreaY;
     private long gebrauchteZeit;
     private int objectBorder;
+    private boolean isBucketShape;
 
 
     public long getGebrauchteZeit() {
@@ -58,6 +59,8 @@ public class Detector {
     public Bitmap getOriginalImage() {
         return originalImage;
     }
+
+    public boolean getIsBucketShape(){ return isBucketShape; }
 
     public static void setLuminanceThreshold(float LUMINANCETHRESHOLD) {
         Detector.LUMINANCETHRESHOLD = LUMINANCETHRESHOLD;
@@ -188,7 +191,7 @@ public class Detector {
     }
 
     private boolean isBucketShape(int x, int y, boolean fromLeft) {
-        boolean isBucketShape = true;
+        isBucketShape = true;
         int[] rgbToLeft = new int[VISITED_PIXELS];
         int[] rgbToRight = new int[VISITED_PIXELS];
 
