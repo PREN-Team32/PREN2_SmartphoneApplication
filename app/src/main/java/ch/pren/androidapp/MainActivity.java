@@ -45,19 +45,23 @@ public class MainActivity extends Activity {
     private UsbService usbService;
     private MyHandler mHandler;
     private ValueItem valueItem;
+    private BluetoothConnection bluetoothConnection;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Context NICHT vor onCreate() beziehen! (stadessen wie hier mittels Methode nach OnCreate)
+        // Context NICHT vor onCreate() beziehen! (stattdessen wie hier mittels Methode nach OnCreate)
         context = getAppContext();
 
         valueItem = ValueItem.getInstance();
 
 
-        BluetoothConnection bluetoothConnection = new BluetoothConnection();
+        bluetoothConnection = new BluetoothConnection();
+
+
+
 
 
         mHandler = new MyHandler();
@@ -73,8 +77,12 @@ public class MainActivity extends Activity {
         camera.setDisplayOrientation(90);
         mPreview = new CameraPreview(this, camera);
 
+        // set Preview für Camera
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
+
+        // take a Picture
+        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
 
 
     }
@@ -117,16 +125,6 @@ public class MainActivity extends Activity {
         unbindService(usbConnection);
     }
 
-    /**
-     * Button_onCLick für erstellen eines Photos
-     *
-     * @param view
-     */
-    public void onClickPhoto(View view) {
-
-        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-        Log.d(DEBUG_TAG, "take Picture");
-    }
 
     /**
      * Picture Callback beim shutter
