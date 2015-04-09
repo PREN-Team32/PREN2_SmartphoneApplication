@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
     private MyHandler mHandler;
     private ValueItem valueItem;
     private BluetoothConnection bluetoothConnection;
-
+    private SoundHandler soundHandler;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
 
         // Context NICHT vor onCreate() beziehen! (stattdessen wie hier mittels Methode nach OnCreate)
         context = getAppContext();
-
+        soundHandler = new SoundHandler(this);
         valueItem = ValueItem.getInstance();
 
 
@@ -170,6 +170,7 @@ public class MainActivity extends Activity {
     }
 
     private void sendAngleToBoard(final byte angle) {
+        // Für Board: BLDC on
         byte[] sendArray = new byte[1];
         sendArray[0] = angle;
 
@@ -192,7 +193,6 @@ public class MainActivity extends Activity {
     }
 
     private void onReceiveFromBoard(final String receivedData) {
-        SoundHandler soundHandler = new SoundHandler(this);
         if (receivedData.equals("f")) {
             soundHandler.play();
             // TODO: Zeit stoppen von photoclick bis hier
