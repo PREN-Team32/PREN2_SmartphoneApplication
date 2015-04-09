@@ -56,17 +56,19 @@ public class MainActivity extends Activity {
 
         valueItem = ValueItem.getInstance();
 
+
+        BluetoothConnection bluetoothConnection = new BluetoothConnection();
+
+
         mHandler = new MyHandler();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
-
 
         try {
             camera = Camera.open();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         camera.setDisplayOrientation(90);
         mPreview = new CameraPreview(this, camera);
@@ -162,6 +164,7 @@ public class MainActivity extends Activity {
         Detector detector = new Detector(rawImage);
         byte calculatedAngle = detector.start();
         sendAngleToBoard(calculatedAngle);
+        valueItem.calculatedAngle = calculatedAngle;
         saveEditedImageInDir(detector.getEditedImage());
     }
 
