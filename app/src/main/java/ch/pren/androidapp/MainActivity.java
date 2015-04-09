@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import ch.pren.bluetooth.BluetoothConnection;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.model.ValueItem;
 import ch.pren.multimedia.SoundHandler;
 import ch.pren.usbconnector.UsbService;
 
@@ -42,19 +44,29 @@ public class MainActivity extends Activity {
     private Context context;
     private UsbService usbService;
     private MyHandler mHandler;
+    private ValueItem valueItem;
+    private BluetoothConnection bluetoothConnection;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Context NICHT vor onCreate() beziehen! (stadessen wie hier mittels Methode nach OnCreate)
+        // Context NICHT vor onCreate() beziehen! (stattdessen wie hier mittels Methode nach OnCreate)
         context = getAppContext();
+
+        valueItem = ValueItem.getInstance();
+
+
+        bluetoothConnection = new BluetoothConnection();
+
+
+
+
 
         mHandler = new MyHandler();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
-
 
         try {
             camera = Camera.open();
@@ -62,16 +74,15 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        /*
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setRotation(90);
-        parameters.setFocusMode(parameters.FOCUS_MODE_AUTO);
-        */
         camera.setDisplayOrientation(90);
         mPreview = new CameraPreview(this, camera);
 
+        // set Preview für Camera
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
+
+        // take a Picture
+        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
 
 
     }
@@ -114,16 +125,6 @@ public class MainActivity extends Activity {
         unbindService(usbConnection);
     }
 
-    /**
-     * Button_onCLick für erstellen eines Photos
-     *
-     * @param view
-     */
-    public void onClickPhoto(View view) {
-
-        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-        Log.d(DEBUG_TAG, "take Picture");
-    }
 
     /**
      * Picture Callback beim shutter
@@ -150,6 +151,7 @@ public class MainActivity extends Activity {
         public void onPictureTaken(byte[] data, Camera camera) {
             photoHandler = new PhotoHandler(context);
             photoHandler.onPictureTaken(data, camera);
+            valueItem.originalImage = Base64.encodeToString(data, Base64.DEFAULT);
             detectBasket(data);
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
@@ -160,6 +162,7 @@ public class MainActivity extends Activity {
         Detector detector = new Detector(rawImage);
         byte calculatedAngle = detector.start();
         sendAngleToBoard(calculatedAngle);
+        valueItem.calculatedAngle = calculatedAngle;
         saveEditedImageInDir(detector.getEditedImage());
     }
 
@@ -181,6 +184,7 @@ public class MainActivity extends Activity {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         editedImage.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
+        valueItem.editedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
         photoHandler.savePictureToDir(byteArray);
     }
 
