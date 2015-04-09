@@ -5,15 +5,8 @@
 
 
     <Button
-        android:id="@+id/btnSearch"
-        android:text="Gerät suchen"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onSearchDevices" />
-
-    <Button
         android:id="@+id/btnDiscover"
-        android:text="Gerät entdeckbar"
+        android:text="Connect.."
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="onDiscoverDevices" />

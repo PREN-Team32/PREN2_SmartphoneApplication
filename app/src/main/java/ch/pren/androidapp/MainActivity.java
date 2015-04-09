@@ -21,7 +21,6 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.ref.WeakReference;
 import java.util.Set;
 
 import ch.pren.bluetooth.BluetoothConnection;
@@ -57,7 +56,7 @@ public class MainActivity extends Activity {
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
 
 
-       try {
+        try {
             camera = Camera.open();
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,6 +116,7 @@ public class MainActivity extends Activity {
 
     /**
      * Button_onCLick für erstellen eines Photos
+     *
      * @param view
      */
     public void onClickPhoto(View view) {
@@ -149,14 +149,14 @@ public class MainActivity extends Activity {
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
             photoHandler = new PhotoHandler(context);
-            photoHandler.onPictureTaken(data,camera);
+            photoHandler.onPictureTaken(data, camera);
             detectBasket(data);
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
     };
 
 
-    private void detectBasket(byte[] rawImage){
+    private void detectBasket(byte[] rawImage) {
         Detector detector = new Detector(rawImage);
         byte calculatedAngle = detector.start();
         sendAngleToBoard(calculatedAngle);
@@ -164,11 +164,11 @@ public class MainActivity extends Activity {
 
     }
 
-    private void sendAngleToBoard(final byte angle){
+    private void sendAngleToBoard(final byte angle) {
         byte[] sendArray = new byte[1];
         sendArray[0] = angle;
 
-        if(usbService != null) { // if UsbService was correctly bounded, send data
+        if (usbService != null) { // if UsbService was correctly bounded, send data
             try {
                 usbService.write(sendArray);
                 Toast.makeText(context, "Sent data: " + angle, Toast.LENGTH_SHORT).show();
@@ -178,16 +178,16 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void saveEditedImageInDir(final Bitmap editedImage){
+    private void saveEditedImageInDir(final Bitmap editedImage) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         editedImage.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
         photoHandler.savePictureToDir(byteArray);
     }
 
-    private void onReceiveFromBoard(final String receivedData){
+    private void onReceiveFromBoard(final String receivedData) {
         SoundHandler soundHandler = new SoundHandler(this);
-        if(receivedData.equals("f")){
+        if (receivedData.equals("f")) {
             soundHandler.play();
             // TODO: Zeit stoppen von photoclick bis hier
             Toast.makeText(context, "GAME FINISHED", Toast.LENGTH_SHORT).show();
@@ -202,20 +202,14 @@ public class MainActivity extends Activity {
     }
 
 
-
-
     //   ----------------------------- Innere Klassen + Helper Methoden ----------------------------------------------
 
-    private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras)
-    {
-        if(!UsbService.SERVICE_CONNECTED)
-        {
+    private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
+        if (!UsbService.SERVICE_CONNECTED) {
             Intent startService = new Intent(this, service);
-            if(extras != null && !extras.isEmpty())
-            {
+            if (extras != null && !extras.isEmpty()) {
                 Set<String> keys = extras.keySet();
-                for(String key: keys)
-                {
+                for (String key : keys) {
                     String extra = extras.getString(key);
                     startService.putExtra(key, extra);
                 }
@@ -226,8 +220,7 @@ public class MainActivity extends Activity {
         bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private void setFilters()
-    {
+    private void setFilters() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbService.ACTION_USB_PERMISSION_GRANTED);
         filter.addAction(UsbService.ACTION_NO_USB);
@@ -238,18 +231,15 @@ public class MainActivity extends Activity {
     }
 
     /*
-	 * This handler will be passed to UsbService. Data received from serial port is displayed through this handler
+     * This handler will be passed to UsbService. Data received from serial port is displayed through this handler
 	 */
-    private class MyHandler extends Handler
-    {
+    private class MyHandler extends Handler {
         public MyHandler() {
         }
 
         @Override
-        public void handleMessage(Message msg)
-        {
-            switch(msg.what)
-            {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     String data = (String) msg.obj;
                     onReceiveFromBoard(data);
@@ -261,47 +251,42 @@ public class MainActivity extends Activity {
     /*
 	 * Notifications from UsbService will be received here.
 	 */
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver()
-    {
+    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context arg0, Intent arg1)
-        {
-            if(arg1.getAction().equals(UsbService.ACTION_USB_PERMISSION_GRANTED)) // USB PERMISSION GRANTED
+        public void onReceive(Context arg0, Intent arg1) {
+            if (arg1.getAction().equals(UsbService.ACTION_USB_PERMISSION_GRANTED)) // USB PERMISSION GRANTED
             {
                 Toast.makeText(arg0, "USB Ready", Toast.LENGTH_SHORT).show();
-            }else if(arg1.getAction().equals(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED)) // USB PERMISSION NOT GRANTED
+            } else if (arg1.getAction().equals(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED)) // USB PERMISSION NOT GRANTED
             {
                 Toast.makeText(arg0, "USB Permission not granted", Toast.LENGTH_SHORT).show();
-            }else if(arg1.getAction().equals(UsbService.ACTION_NO_USB)) // NO USB CONNECTED
+            } else if (arg1.getAction().equals(UsbService.ACTION_NO_USB)) // NO USB CONNECTED
             {
                 Toast.makeText(arg0, "No USB connected", Toast.LENGTH_SHORT).show();
-            }else if(arg1.getAction().equals(UsbService.ACTION_USB_DISCONNECTED)) // USB DISCONNECTED
+            } else if (arg1.getAction().equals(UsbService.ACTION_USB_DISCONNECTED)) // USB DISCONNECTED
             {
                 Toast.makeText(arg0, "USB disconnected", Toast.LENGTH_SHORT).show();
-            }else if(arg1.getAction().equals(UsbService.ACTION_USB_NOT_SUPPORTED)) // USB NOT SUPPORTED
+            } else if (arg1.getAction().equals(UsbService.ACTION_USB_NOT_SUPPORTED)) // USB NOT SUPPORTED
             {
                 Toast.makeText(arg0, "USB device not supported", Toast.LENGTH_SHORT).show();
             }
         }
     };
 
-    private final ServiceConnection usbConnection = new ServiceConnection()
-    {
+    private final ServiceConnection usbConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName arg0, IBinder arg1)
-        {
+        public void onServiceConnected(ComponentName arg0, IBinder arg1) {
             usbService = ((UsbService.UsbBinder) arg1).getService();
             usbService.setHandler(mHandler);
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName arg0)
-        {
+        public void onServiceDisconnected(ComponentName arg0) {
             usbService = null;
         }
     };
 
-    private Context getAppContext(){
+    private Context getAppContext() {
         return this.getApplicationContext();
     }
 
