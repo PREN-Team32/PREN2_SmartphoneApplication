@@ -118,11 +118,6 @@ public class BluetoothConnection extends Activity {
         }
     }
 
-
-    public void onSearchDevices(View view) {
-        setDiscoverable();
-    }
-
     public void onDiscoverDevices(View view) {
 
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
@@ -135,14 +130,6 @@ public class BluetoothConnection extends Activity {
         mCommandService = new BluetoothSocket(this, mHandler);
     }
 
-    //enables Smartphone to be seen
-    private void setDiscoverable() {
-        if (BA.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent);
-        }
-    }
 
 
     // The Handler that gets information back from the BluetoothChatService
@@ -208,37 +195,25 @@ public class BluetoothConnection extends Activity {
 
     public void onSendMessage(View view) {
 
+
+        //ToDo Alles ValueItem zuweisungen löschen ist nur für Testzwecke
         ValueItem val = ValueItem.getInstance();
         val.calculatedAngle = 12;
         val.foundShape = true;
         val.mainArea = 7;
         val.totalTimeUsed = 42;
 
-
         //Test Object to Byte
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = null;
 
-
-        //val.originalImage = bitmaptoBase64();
-        //val.editedImage = bitmaptoBase64();
-
-        byte[] bitels = new byte[1024];
-
-        for (int i = 0; i < bitels.length; i++) {
-            bitels[i] = 7;
-        }
-
-        //val.editedImage = bitels;
         val.originalImage = bitmaptoBase64();
 
-        //String WhattheFuckisintTheBase64String = val.originalImage;
 
         try {
             out = new ObjectOutputStream(bos);
             out.flush();
             out.writeObject(val);
-
 
             byte[] yourBytes = bos.toByteArray();
             out.flush();
@@ -262,15 +237,13 @@ public class BluetoothConnection extends Activity {
     }
 
     public String bitmaptoBase64() {
-        String bildli = "";
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Bitmap image = BitmapFactory.decodeFile("/storage/emulated/0/Download/Testphoto.jpg");
         image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         byte[] bytes = bos.toByteArray();
 
-        return bildli = Base64.encodeToString(bytes, Base64.DEFAULT);
-
-        //return bytes;
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
 }
 

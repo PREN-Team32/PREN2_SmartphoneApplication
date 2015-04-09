@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -34,6 +33,7 @@ public class PhotoHandler implements Camera.PictureCallback {
      * Wichtig!! Diese Methode speichert das raw-Image das direkt von der Camera kommt.
      * Das edited Image vom Detektor (SW-Bild) wird in der Methode unten (savePictureToDir)
      * gespeichert. Bitte Richtig verweden!
+     *
      * @param data
      * @param camera
      */
@@ -53,7 +53,7 @@ public class PhotoHandler implements Camera.PictureCallback {
 
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50 , stream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] bitmapData = stream.toByteArray();
 
         // ------ raw-Image ----------------------
@@ -112,7 +112,7 @@ public class PhotoHandler implements Camera.PictureCallback {
 
     private File getDir() {
 
-        File sdDir =  new File(FILEPATH);
+        File sdDir = new File(FILEPATH);
         return new File(sdDir, "PREN_T32");
     }
 }
