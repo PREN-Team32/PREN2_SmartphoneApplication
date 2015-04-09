@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import ch.pren.bluetooth.BluetoothConnection;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.model.ValueItem;
 import ch.pren.multimedia.SoundHandler;
 import ch.pren.usbconnector.UsbService;
 
@@ -42,6 +44,7 @@ public class MainActivity extends Activity {
     private Context context;
     private UsbService usbService;
     private MyHandler mHandler;
+    private ValueItem valueItem;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,8 @@ public class MainActivity extends Activity {
 
         // Context NICHT vor onCreate() beziehen! (stadessen wie hier mittels Methode nach OnCreate)
         context = getAppContext();
+
+        valueItem = ValueItem.getInstance();
 
         mHandler = new MyHandler();
         setFilters();  // Start listening notifications from UsbService
@@ -62,11 +67,7 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        /*
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setRotation(90);
-        parameters.setFocusMode(parameters.FOCUS_MODE_AUTO);
-        */
+
         camera.setDisplayOrientation(90);
         mPreview = new CameraPreview(this, camera);
 
@@ -150,6 +151,7 @@ public class MainActivity extends Activity {
         public void onPictureTaken(byte[] data, Camera camera) {
             photoHandler = new PhotoHandler(context);
             photoHandler.onPictureTaken(data, camera);
+            valueItem.originalImage = Base64.encodeToString(data, Base64.DEFAULT);
             detectBasket(data);
             Log.d(DEBUG_TAG, "onPictureTaken - jpeg");
         }
@@ -161,7 +163,6 @@ public class MainActivity extends Activity {
         byte calculatedAngle = detector.start();
         sendAngleToBoard(calculatedAngle);
         saveEditedImageInDir(detector.getEditedImage());
-
     }
 
     private void sendAngleToBoard(final byte angle) {
@@ -182,6 +183,7 @@ public class MainActivity extends Activity {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         editedImage.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
+        valueItem.editedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
         photoHandler.savePictureToDir(byteArray);
     }
 
