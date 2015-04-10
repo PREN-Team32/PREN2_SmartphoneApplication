@@ -3,9 +3,6 @@ package ch.pren.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -16,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import ch.pren.androidapp.MainActivity;
 import ch.pren.model.ConfigurationItem;
 
 public class BluetoothSocket {
@@ -52,6 +50,8 @@ public class BluetoothSocket {
      * @param context The UI Activity Context
 
      */
+
+
     public BluetoothSocket(Context context) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
@@ -321,9 +321,10 @@ public class BluetoothSocket {
             mmOutStream = tmpOut;
         }
 
+        //<editor-fold description="Read Stream">
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[10240];
 
             // Keep listening to the InputStream while connected
             while (true) {
@@ -331,10 +332,10 @@ public class BluetoothSocket {
                     // Read from the InputStream
                     int bytes = mmInStream.read(buffer);
 
-
+                    mmInStream.read(buffer, bytes, 10240 - bytes);
                     //Recieves the sended Data from the Computer -> Wow such english, much good
-                    if (bytes == -1)
-                        recieveData(buffer);
+
+                    recieveData(buffer);
 
                     // Send the obtained bytes to the UI Activity
 
@@ -347,6 +348,7 @@ public class BluetoothSocket {
         }
 
         public void recieveData(byte[] myBytes) throws IOException {
+            MainActivity ma = new MainActivity();
             ByteArrayInputStream bis = new ByteArrayInputStream(myBytes);
             ObjectInput in = null;
 
@@ -359,26 +361,25 @@ public class BluetoothSocket {
 
                 conf = (ConfigurationItem) in.readObject();
 
-                //String what = o.toString();
+
+                ma.takePic();
+
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
                 try {
                     bis.close();
-                } catch (IOException ex) {
-                    // ignore close exception
-                }
-                try {
                     if (in != null) {
                         in.close();
                     }
                 } catch (IOException ex) {
-                    // ignore close exception
+                    ex.printStackTrace();
                 }
 
             }
         }
 
+        //</editor-fold>>
 
         /**
          * Write to the connected OutStream.

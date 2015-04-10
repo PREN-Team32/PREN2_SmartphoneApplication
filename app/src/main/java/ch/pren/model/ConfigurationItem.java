@@ -12,6 +12,8 @@ public class ConfigurationItem implements Serializable {
     private static ConfigurationItem instance = null;
 
 
+    private static final long serialVersionUID = 70833161384221638L;
+
     protected ConfigurationItem() {
     }
 

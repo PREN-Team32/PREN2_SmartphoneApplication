@@ -71,19 +71,12 @@ public class MainActivity extends Activity {
         valueItem = ValueItem.getInstance();
 
 
-        //Checks the Bluetooth Adapter and if its enabled
-        if (BA == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+        BA = BluetoothAdapter.getDefaultAdapter();
+        //Überprüft ob BluetoothAdapter eingeschaltet ist, wenn nicht wird er eingeschaltet
         if (!BA.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, 2);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
-
-        BA = BluetoothAdapter.getDefaultAdapter();
-
 
 
         mHandler = new MyHandler();
@@ -98,16 +91,18 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
 
-        camera.setDisplayOrientation(90);
-        mPreview = new CameraPreview(this, camera);
+        try {
+            camera.setDisplayOrientation(90);
+            mPreview = new CameraPreview(this, camera);
 
-        // set Preview für Camera
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
+            // set Preview für Camera
+            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+            preview.addView(mPreview);
 
-        // take a Picture
-        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -131,6 +126,10 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void takePic() {
+        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
     }
 
     @Override
@@ -197,6 +196,8 @@ public class MainActivity extends Activity {
         valueItem.mainArea = detector.getMainAreaX();
         valueItem.foundShape = detector.getIsBucketShape();
         saveEditedImageInDir(detector.getEditedImage());
+
+        SendValueItem();
     }
 
     private void sendAngleToBoard(final byte angle) {
@@ -266,6 +267,43 @@ public class MainActivity extends Activity {
         //Startet die DeviceList suche für BluetoothConnection search
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
         startActivityForResult(serverIntent, 1);
+
+
+    }
+
+    //ValueItem wird in ein ByteArray geparst und gesendet
+    private void SendValueItem() {
+        ValueItem val = ValueItem.getInstance();
+
+        //Test Object to Bytef
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+
+
+        try {
+            out = new ObjectOutputStream(bos);
+            out.flush();
+            out.writeObject(val);
+
+            byte[] yourBytes = bos.toByteArray();
+            out.flush();
+            mCommandService.write(yourBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+            try {
+                bos.close();
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
     }
 
     public void onClickSendData(View view) {
@@ -348,7 +386,6 @@ public class MainActivity extends Activity {
 
 
     //   ----------------------------- Innere Klassen + Helper Methoden ----------------------------------------------
-
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
         if (!UsbService.SERVICE_CONNECTED) {
             Intent startService = new Intent(this, service);

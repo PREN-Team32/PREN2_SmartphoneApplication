@@ -32,6 +32,8 @@
         android:layout_height="wrap_content"
         android:onClick="onClickSendData"
         android:text="Send Data"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/camera_preview"
+        android:layout_toLeftOf="@+id/bluetoothButton"
+        android:layout_toStartOf="@+id/bluetoothButton" />
 
 </RelativeLayout>
