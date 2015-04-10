@@ -53,6 +53,9 @@ public class MainActivity extends Activity {
     private MyHandler mHandler;
     private ValueItem valueItem;
     private SoundHandler soundHandler;
+    private long zeitBegin;
+    private long zeitEnde;
+    private long zeitGesamt;
 
 
     //Bluetooth Memebervariabeln
@@ -99,6 +102,9 @@ public class MainActivity extends Activity {
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
             preview.addView(mPreview);
 
+        
+        
+        zeitBegin = System.currentTimeMillis();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -201,7 +207,6 @@ public class MainActivity extends Activity {
     }
 
     private void sendAngleToBoard(final byte angle) {
-        // Für Board: BLDC on
         byte[] sendArray = new byte[1];
         sendArray[0] = angle;
 
@@ -213,6 +218,9 @@ public class MainActivity extends Activity {
                 System.err.println(e.getMessage());
             }
         }
+        zeitEnde = System.currentTimeMillis();
+        zeitGesamt = zeitEnde - zeitBegin;
+        Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
     }
 
     private void saveEditedImageInDir(final Bitmap editedImage) {
@@ -226,7 +234,6 @@ public class MainActivity extends Activity {
     private void onReceiveFromBoard(final String receivedData) {
         if (receivedData.equals("f")) {
             soundHandler.play();
-            // TODO: Zeit stoppen von photoclick bis hier
             Toast.makeText(context, "GAME FINISHED", Toast.LENGTH_SHORT).show();
         }
     }
@@ -267,8 +274,6 @@ public class MainActivity extends Activity {
         //Startet die DeviceList suche für BluetoothConnection search
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
         startActivityForResult(serverIntent, 1);
-
-
     }
 
     //ValueItem wird in ein ByteArray geparst und gesendet
@@ -386,6 +391,7 @@ public class MainActivity extends Activity {
 
 
     //   ----------------------------- Innere Klassen + Helper Methoden ----------------------------------------------
+
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
         if (!UsbService.SERVICE_CONNECTED) {
             Intent startService = new Intent(this, service);
