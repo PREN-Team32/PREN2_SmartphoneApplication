@@ -29,7 +29,7 @@ public class BluetoothSocket {
 
     // Member fields
     private final BluetoothAdapter mAdapter;
-    private final Handler mHandler;
+
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
@@ -50,13 +50,13 @@ public class BluetoothSocket {
      * Constructor. Prepares a new BluetoothChat session.
      *
      * @param context The UI Activity Context
-     * @param handler A Handler to send messages back to the UI Activity
+
      */
-    public BluetoothSocket(Context context, Handler handler) {
+    public BluetoothSocket(Context context) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         //mConnectionLostCount = 0;
-        mHandler = handler;
+
     }
 
     /**
@@ -69,7 +69,7 @@ public class BluetoothSocket {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(BluetoothConnection.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+
     }
 
     /**
@@ -84,6 +84,7 @@ public class BluetoothSocket {
      * session in listening (server) mode. Called by the Activity onResume()
      */
     public synchronized void start() {
+        try {
         if (D) Log.d(TAG, "start");
 
         // Cancel any thread attempting to make a connection
@@ -99,6 +100,9 @@ public class BluetoothSocket {
         }
 
         setState(STATE_LISTEN);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -107,7 +111,7 @@ public class BluetoothSocket {
      * @param device The BluetoothDevice to connect
      */
     public synchronized void connect(BluetoothDevice device) {
-
+        try {
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
             if (mConnectThread != null) {
@@ -126,6 +130,9 @@ public class BluetoothSocket {
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
         setState(STATE_CONNECTING);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -135,6 +142,7 @@ public class BluetoothSocket {
      * @param device The BluetoothDevice that has been connected
      */
     public synchronized void connected(android.bluetooth.BluetoothSocket socket, BluetoothDevice device) {
+        try {
         if (D) Log.d(TAG, "connected");
 
         // Cancel the thread that completed the connection
@@ -153,25 +161,18 @@ public class BluetoothSocket {
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
 
-        // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(BluetoothConnection.MESSAGE_DEVICE_NAME);
-        Bundle bundle = new Bundle();
-        bundle.putString(BluetoothConnection.DEVICE_NAME, device.getName());
-        msg.setData(bundle);
-        mHandler.sendMessage(msg);
-
-        // save connected device
-        //mSavedDevice = device;
-        // reset connection lost count
-        //mConnectionLostCount = 0;
 
         setState(STATE_CONNECTED);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Stop all threads
      */
     public synchronized void stop() {
+        try {
         if (D) Log.d(TAG, "stop");
         if (mConnectThread != null) {
             mConnectThread.cancel();
@@ -183,6 +184,9 @@ public class BluetoothSocket {
         }
 
         setState(STATE_NONE);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -203,55 +207,21 @@ public class BluetoothSocket {
         r.write(out);
     }
 
-//    public void write(int out) {
-//        // Create temporary object
-//        ConnectedThread r;
-//        // Synchronize a copy of the ConnectedThread
-//        synchronized (this) {
-//            if (mState != STATE_CONNECTED) return;
-//            r = mConnectedThread;
-//        }
-//        // Perform the write unsynchronized
-//        r.write(out);
-//    }
-
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
         setState(STATE_LISTEN);
 
-        // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothConnection.MESSAGE_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString(BluetoothConnection.TOAST, "Unable to connect device");
-        msg.setData(bundle);
-        mHandler.sendMessage(msg);
     }
 
     /**
      * Indicate that the connection was lost and notify the UI Activity.
      */
     private void connectionLost() {
-//        mConnectionLostCount++;
-//        if (mConnectionLostCount < 3) {
-//        	// Send a reconnect message back to the Activity
-//	        Message msg = mHandler.obtainMessage(RemoteBluetooth.MESSAGE_TOAST);
-//	        Bundle bundle = new Bundle();
-//	        bundle.putString(RemoteBluetooth.TOAST, "Device connection was lost. Reconnecting...");
-//	        msg.setData(bundle);
-//	        mHandler.sendMessage(msg);
-//	        
-//        	connect(mSavedDevice);   	
-//        } else {
+
         setState(STATE_LISTEN);
-        // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothConnection.MESSAGE_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString(BluetoothConnection.TOAST, "Device connection was lost");
-        msg.setData(bundle);
-        mHandler.sendMessage(msg);
-//        }
+
     }
 
 
@@ -363,11 +333,11 @@ public class BluetoothSocket {
 
 
                     //Recieves the sended Data from the Computer -> Wow such english, much good
-                    recieveData(buffer);
+                    if (bytes == -1)
+                        recieveData(buffer);
 
                     // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(BluetoothConnection.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
+
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
