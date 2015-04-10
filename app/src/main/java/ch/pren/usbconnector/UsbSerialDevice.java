@@ -1,14 +1,15 @@
 package ch.pren.usbconnector;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+
+
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbRequest;
-import android.util.Log;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class UsbSerialDevice implements UsbSerialInterface
 {
@@ -72,8 +73,8 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 			return new CP2102SerialDevice(device, connection, iface);
 		else if(PL2303Ids.isDeviceSupported(vid, pid))
 			return new PL2303SerialDevice(device, connection, iface);
-		//else if(XdcVcpIds.isDeviceSupported(vid, pid))
-			//return new XdcVcpSerialDevice(device, connection);
+		else if(CH34xIds.isDeviceSupported(vid, pid))
+			return new CH34xSerialDevice(device, connection, iface);
 		else if(isCdcDevice(device))  
 			return new CDCSerialDevice(device, connection, iface);
 		else 
@@ -96,8 +97,7 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 		if(mr1Version)
 		{
 			workerThread.setCallback(mCallback);
-			workerThread.getUsbRequest().queue(serialBuffer.getReadBuffer(), SerialBuffer.DEFAULT_READ_BUFFER_SIZE);
-            Log.d("thomSerial", " read mr1Version ");
+			workerThread.getUsbRequest().queue(serialBuffer.getReadBuffer(), SerialBuffer.DEFAULT_READ_BUFFER_SIZE); 
 		}else
 		{
 			readThread.setCallback(mCallback);
@@ -288,7 +288,6 @@ public abstract class UsbSerialDevice implements UsbSerialInterface
 					{
 						if(dataReceived.length > 2)
 						{
-                            Log.d("thomSerial", "is FTDI Device...");
 							dataReceived = FTDISerialDevice.FTDIUtilities.adaptArray(dataReceived);
 							callback.onReceivedData(dataReceived);
 						}

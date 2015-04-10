@@ -1,5 +1,10 @@
 package ch.pren.usbconnector;
 
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
+
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -12,44 +17,36 @@ import android.hardware.usb.UsbManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
-
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class UsbService extends Service
 {
-	public static final String ACTION_USB_READY = "USB_READY";
-	private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
-	public static final String ACTION_USB_ATTACHED = "USB_DEVICE_ATTACHED";
-	public static final String ACTION_USB_DETACHED = "USB_DEVICE_DETACHED";
-	public static final String ACTION_USB_NOT_SUPPORTED = "USB_NOT_SUPPORTED";
-	public static final String ACTION_NO_USB = "NO_USB";
-	public static final String ACTION_USB_PERMISSION_GRANTED = "USB_PERMISSION_GRANTED";
-	public static final String ACTION_USB_PERMISSION_NOT_GRANTED = "USB_PERMISSION_NOT_GRANTED";
-	public static final String ACTION_USB_DISCONNECTED = "USB_DISCONNECTED";
-	public static final String ACTION_CDC_DRIVER_NOT_WORKING ="ACTION_CDC_DRIVER_NOT_WORKING";
-	public static final String ACTION_USB_DEVICE_NOT_WORKING = "ACTION_USB_DEVICE_NOT_WORKING";
+	public static final String ACTION_USB_READY = "com.felhr.connectivityservices.USB_READY";
+	private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+	public static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
+	public static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
+	public static final String ACTION_USB_NOT_SUPPORTED = "com.felhr.usbservice.USB_NOT_SUPPORTED";
+	public static final String ACTION_NO_USB = "com.felhr.usbservice.NO_USB";
+	public static final String ACTION_USB_PERMISSION_GRANTED = "com.felhr.usbservice.USB_PERMISSION_GRANTED";
+	public static final String ACTION_USB_PERMISSION_NOT_GRANTED = "com.felhr.usbservice.USB_PERMISSION_NOT_GRANTED";
+	public static final String ACTION_USB_DISCONNECTED = "com.felhr.usbservice.USB_DISCONNECTED";
+	public static final String ACTION_CDC_DRIVER_NOT_WORKING ="com.felhr.connectivityservices.ACTION_CDC_DRIVER_NOT_WORKING";
+	public static final String ACTION_USB_DEVICE_NOT_WORKING = "com.felhr.connectivityservices.ACTION_USB_DEVICE_NOT_WORKING";
 	
 	private static final int BAUD_RATE = 38400; // BaudRate. Change this value if you need
 	public static final int MESSAGE_FROM_SERIAL_PORT = 0;
-    private final Charset UTF8_CHARSET = Charset.forName("UTF-8");
-    private final Charset ASCII_CHARSET = Charset.forName("US-ASCII");
-
 	
 	public static boolean SERVICE_CONNECTED = false;
 	
 	private IBinder binder = new UsbBinder();
-
+	
 	private Context context;
 	private Handler mHandler;
 	private UsbManager usbManager;
 	private UsbDevice device;
 	private UsbDeviceConnection connection;
 	private UsbSerialDevice serialPort;
-    private boolean hasBeenWrote = false;
+	
+	private boolean serialPortConnected;
 	
 	/*
 	 * onCreate will be executed when service is started. It configures an IntentFilter to listen for
@@ -59,6 +56,7 @@ public class UsbService extends Service
 	public void onCreate()
 	{
 		this.context = this;
+		serialPortConnected = false;
 		UsbService.SERVICE_CONNECTED = true;
 		setFilter();
 		usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -93,12 +91,8 @@ public class UsbService extends Service
 	 */
 	public void write(byte[] data)
 	{
-
 		if(serialPort != null)
 			serialPort.write(data);
-                Log.d("thomSerial", "write: " + data.toString());
-
-
 	}
 	
 	public void setHandler(Handler mHandler)
@@ -117,16 +111,12 @@ public class UsbService extends Service
 			{
 				device = entry.getValue();
 				int deviceVID = device.getVendorId();
-                Log.d("thomSerial","" + deviceVID);
 				int devicePID = device.getProductId();
-                Log.d("thomSerial", "" + devicePID);
 				if(deviceVID != 0x1d6b || (devicePID != 0x0001 || devicePID != 0x0002 || devicePID != 0x0003))
 				{
 					// There is a device connected to our Android device. Try to open it as a Serial Port.
-
-                    Log.d("thomSerial", "before request permisson");
 					requestUserPermission();
-					keep = false;
+					keep = false;  
 				}else
 				{
 					connection = null;
@@ -166,28 +156,30 @@ public class UsbService extends Service
 	{
 		PendingIntent mPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION),0);
 		usbManager.requestPermission(device, mPendingIntent);
-        Log.d("thomSerial", "permission requested");
 	}
-
-
-    private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
-        @Override
-        public void onReceivedData(byte[] arg0) {
-            Log.d("thomSerial", "onReceivedData() ");
-            try {
-                String data = new String(arg0, "UTF-8");
-                if (mHandler != null)
-                    mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT, data).sendToTarget();
-
-                Log.d("thomSerial", "This msg should be sent to Handler _ data3: " + data);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    };
-
-
+	
+	/*
+	 *  Data received from serial port will be received here. Just populate onReceivedData with your code
+	 *  In this particular example. byte stream is converted to String and send to UI thread to
+	 *  be treated there.
+	 */
+	private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() 
+	{
+		@Override
+		public void onReceivedData(byte[] arg0) 
+		{
+			try 
+			{
+				String data = new String(arg0, "US-ASCII");
+				if(mHandler != null)
+					mHandler.obtainMessage(MESSAGE_FROM_SERIAL_PORT,data).sendToTarget(); 
+			} catch (UnsupportedEncodingException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	};
+	
 	public class UsbBinder extends Binder
 	{
 		public UsbService getService()
@@ -213,9 +205,8 @@ public class UsbService extends Service
 					Intent intent = new Intent(ACTION_USB_PERMISSION_GRANTED);
 					arg0.sendBroadcast(intent);
 					connection = usbManager.openDevice(device);
-                    Log.d("thomSerial", "usbManager open Device()"  + device.getDeviceName() + device.toString());
-                    new ConnectionThread().run();
-
+					serialPortConnected = true;
+					new ConnectionThread().run();
 				}else // User not accepted our USB connection. Send an Intent to the Main Activity
 				{
 					Intent intent = new Intent(ACTION_USB_PERMISSION_NOT_GRANTED);
@@ -223,12 +214,15 @@ public class UsbService extends Service
 				}
 			}else if(arg1.getAction().equals(ACTION_USB_ATTACHED))
 			{
-				findSerialPortDevice(); // A USB device has been attached. Try to open it as a Serial port
+				if(!serialPortConnected)
+					findSerialPortDevice(); // A USB device has been attached. Try to open it as a Serial port
 			}else if(arg1.getAction().equals(ACTION_USB_DETACHED))
 			{
 				// Usb device was disconnected. send an intent to the Main Activity
 				Intent intent = new Intent(ACTION_USB_DISCONNECTED);
 				arg0.sendBroadcast(intent);
+				serialPortConnected = false;
+				serialPort.close();
 			}
 		}
 	};
@@ -239,48 +233,35 @@ public class UsbService extends Service
 	 */
 	private class ConnectionThread extends Thread
 	{
-
-
-
 		@Override
 		public void run()
 		{
 			serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
-
-
 			if(serialPort != null)
 			{
 				if(serialPort.open())
 				{
-                    serialPort.debug(true);
-                    serialPort.setBaudRate(BAUD_RATE);
+					serialPort.setBaudRate(BAUD_RATE);
 					serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
 					serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
 					serialPort.setParity(UsbSerialInterface.PARITY_NONE);
 					serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-
-                    serialPort.read(mCallback);
+					serialPort.read(mCallback);
 					
 					// Everything went as expected. Send an intent to MainActivity
 					Intent intent = new Intent(ACTION_USB_READY);
 					context.sendBroadcast(intent);
-
-
-
-
-                }else
+				}else
 				{
 					// Serial port could not be opened, maybe an I/O error or if CDC driver was chosen, it does not really fit
 					// Send an Intent to Main Activity
 					if(serialPort instanceof CDCSerialDevice)
 					{
 						Intent intent = new Intent(ACTION_CDC_DRIVER_NOT_WORKING);
-                        Log.d("thomSerial", "ACTION_CDC_DRIVER_NOT_WORKING");
 						context.sendBroadcast(intent);
 					}else
 					{
 						Intent intent = new Intent(ACTION_USB_DEVICE_NOT_WORKING);
-                        Log.d("thomSerial", "ACTION_USB_DRIVER_NOT_WORKING");
 						context.sendBroadcast(intent);
 					}
 				}
@@ -288,15 +269,9 @@ public class UsbService extends Service
 			{
 				// No driver for given device, even generic CDC driver could not be loaded
 				Intent intent = new Intent(ACTION_USB_NOT_SUPPORTED);
-                Log.d("thomSerial", "ACTION_USB_NOT SUPPORTED");
 				context.sendBroadcast(intent);
 			}
-
 		}
 	}
-
-
-
-
 
 }

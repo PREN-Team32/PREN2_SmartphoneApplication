@@ -95,16 +95,9 @@ public class CDCSerialDevice extends UsbSerialDevice
 		}
 
 		// Default Setup
-		if(setControlCommand(CDC_SET_LINE_CODING, 0, CDC_DEFAULT_LINE_CODING) < 0)
-		{
-			Log.i(CLASS_ID, "CDC SET LINE CODING command could not be send correctly");
-			return false;
-		}if(setControlCommand(CDC_SET_CONTROL_LINE_STATE, CDC_DEFAULT_CONTROL_LINE, null) < 0)
-		{
-			Log.i(CLASS_ID, "CDC SET CONTROL LINE STATE command could not be send correctly");
-			return false;
-		}
-
+		setControlCommand(CDC_SET_LINE_CODING, 0, CDC_DEFAULT_LINE_CODING);	
+		setControlCommand(CDC_SET_CONTROL_LINE_STATE, CDC_DEFAULT_CONTROL_LINE, null);
+		
 		// Initialize UsbRequest
 		requestIN = new UsbRequest();
 		requestIN.initialize(connection, inEndpoint);
@@ -118,7 +111,6 @@ public class CDCSerialDevice extends UsbSerialDevice
 	@Override
 	public void close() 
 	{
-		//setControlCommand(CDC_SET_CONTROL_LINE_STATE, CDC_DISCONNECT_CONTROL_LINE , null);
 		killWorkingThread();
 		killWriteThread();
 		connection.releaseInterface(mInterface);
@@ -219,7 +211,6 @@ public class CDCSerialDevice extends UsbSerialDevice
 	@Override
 	public void setFlowControl(int flowControl) 
 	{
-
 	}
 
 	private int setControlCommand(int request, int value, byte[] data)
@@ -229,7 +220,7 @@ public class CDCSerialDevice extends UsbSerialDevice
 		{
 			dataLength = data.length;
 		}
-		int response = connection.controlTransfer(CDC_REQTYPE_HOST2DEVICE, request, value, mInterface.getId(), data, dataLength, USB_TIMEOUT);
+		int response = connection.controlTransfer(CDC_REQTYPE_HOST2DEVICE, request, value, 0, data, dataLength, USB_TIMEOUT);
 		Log.i(CLASS_ID,"Control Transfer Response: " + String.valueOf(response));
 		return response;
 	}
@@ -237,7 +228,7 @@ public class CDCSerialDevice extends UsbSerialDevice
 	private byte[] getLineCoding()
 	{
 		byte[] data = new byte[7];
-		int response = connection.controlTransfer(CDC_REQTYPE_DEVICE2HOST, CDC_GET_LINE_CODING, 0, mInterface.getId(), data, data.length, USB_TIMEOUT);
+		int response = connection.controlTransfer(CDC_REQTYPE_DEVICE2HOST, CDC_GET_LINE_CODING, 0, 0, data, data.length, USB_TIMEOUT);
 		Log.i(CLASS_ID,"Control Transfer Response: " + String.valueOf(response));
 		return data;
 	}
