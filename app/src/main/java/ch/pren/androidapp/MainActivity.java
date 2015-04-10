@@ -53,6 +53,9 @@ public class MainActivity extends Activity {
     private MyHandler mHandler;
     private ValueItem valueItem;
     private SoundHandler soundHandler;
+    private long zeitBegin;
+    private long zeitEnde;
+    private long zeitGesamt;
 
 
     //Bluetooth Memebervariabeln
@@ -107,6 +110,7 @@ public class MainActivity extends Activity {
 
         // take a Picture
         camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+        zeitBegin = System.currentTimeMillis();
 
 
     }
@@ -200,7 +204,6 @@ public class MainActivity extends Activity {
     }
 
     private void sendAngleToBoard(final byte angle) {
-        // Für Board: BLDC on
         byte[] sendArray = new byte[1];
         sendArray[0] = angle;
 
@@ -212,6 +215,9 @@ public class MainActivity extends Activity {
                 System.err.println(e.getMessage());
             }
         }
+        zeitEnde = System.currentTimeMillis();
+        zeitGesamt = zeitEnde - zeitBegin;
+        Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
     }
 
     private void saveEditedImageInDir(final Bitmap editedImage) {
@@ -225,7 +231,6 @@ public class MainActivity extends Activity {
     private void onReceiveFromBoard(final String receivedData) {
         if (receivedData.equals("f")) {
             soundHandler.play();
-            // TODO: Zeit stoppen von photoclick bis hier
             Toast.makeText(context, "GAME FINISHED", Toast.LENGTH_SHORT).show();
         }
     }
@@ -364,6 +369,8 @@ public class MainActivity extends Activity {
         Intent bindingIntent = new Intent(this, service);
         bindService(bindingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
+
+
 
     private void setFilters() {
         IntentFilter filter = new IntentFilter();
