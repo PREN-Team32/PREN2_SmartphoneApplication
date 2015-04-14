@@ -64,9 +64,13 @@ public class MainActivity extends Activity {
     private static final int REQUEST_ENABLE_BT = 2;
     private BluetoothSocket mCommandService = null;
 
+
+    public static Activity activity = null;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Context NICHT vor onCreate() beziehen! (stattdessen wie hier mittels Methode nach OnCreate)
         context = getAppContext();
@@ -109,7 +113,7 @@ public class MainActivity extends Activity {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
+        activity = this;
     }
 
     @Override
@@ -134,8 +138,16 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    public MainActivity getInstance() {
+        return this;
+    }
+
     public void takePic() {
-        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+        try {
+            camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -241,6 +253,7 @@ public class MainActivity extends Activity {
 
     //--------------------------------------  Bluetooth relevanten Methoden    ---------------------------------------------------------
     //<editor-fold desc="Bluetooth">
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -265,12 +278,10 @@ public class MainActivity extends Activity {
     }
 
     private void setupCommand() {
-
-        mCommandService = new BluetoothSocket(this);
+        mCommandService = new BluetoothSocket(this, this);
     }
 
     public void onClickBluetooth(View view) {
-
         //Startet die DeviceList suche für BluetoothConnection search
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
         startActivityForResult(serverIntent, 1);

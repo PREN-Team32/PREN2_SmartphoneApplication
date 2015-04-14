@@ -1,8 +1,10 @@
 package ch.pren.bluetooth;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -43,6 +45,7 @@ public class BluetoothSocket {
     // Constants that indicate command to computer
     public static final int EXIT_CMD = -1;
 
+    private MainActivity myMainActivity;
 
     /**
      * Constructor. Prepares a new BluetoothChat session.
@@ -52,9 +55,10 @@ public class BluetoothSocket {
      */
 
 
-    public BluetoothSocket(Context context) {
+    public BluetoothSocket(Context context, MainActivity myActivity) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
+        this.myMainActivity = myActivity;
         //mConnectionLostCount = 0;
 
     }
@@ -322,6 +326,7 @@ public class BluetoothSocket {
         }
 
         //<editor-fold description="Read Stream">
+        //ToDo: Change here to start the App when ConfigItem is recieved
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[10240];
@@ -330,12 +335,16 @@ public class BluetoothSocket {
             while (true) {
                 try {
                     // Read from the InputStream
-                    int bytes = mmInStream.read(buffer);
+                    //int bytes = mmInStream.read(buffer);
 
-                    mmInStream.read(buffer, bytes, 10240 - bytes);
+                    mmInStream.read(buffer, 0, 10240);
                     //Recieves the sended Data from the Computer -> Wow such english, much good
 
                     recieveData(buffer);
+
+                    //Send the Message that the ConfigItem is recieved
+                    myMainActivity.takePic();
+
 
                     // Send the obtained bytes to the UI Activity
 
@@ -348,7 +357,8 @@ public class BluetoothSocket {
         }
 
         public void recieveData(byte[] myBytes) throws IOException {
-            MainActivity ma = new MainActivity();
+
+
             ByteArrayInputStream bis = new ByteArrayInputStream(myBytes);
             ObjectInput in = null;
 
@@ -356,15 +366,16 @@ public class BluetoothSocket {
             ConfigurationItem conf = ConfigurationItem.getInstance();
 
 
+            //Take Picture in MainActivity soll aufgerufen werden
             try {
+
+
                 in = new ObjectInputStream(bis);
+
 
                 conf = (ConfigurationItem) in.readObject();
 
-
-                ma.takePic();
-
-            } catch (ClassNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 try {
