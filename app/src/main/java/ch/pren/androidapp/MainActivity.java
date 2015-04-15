@@ -297,7 +297,7 @@ public class MainActivity extends Activity {
 
     //ValueItem wird in ein ByteArray geparst und gesendet
     private void SendValueItem() {
-        ValueItem val = ValueItem.getInstance();
+
 
         //Test Object to Bytef
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -307,7 +307,7 @@ public class MainActivity extends Activity {
         try {
             out = new ObjectOutputStream(bos);
             out.flush();
-            out.writeObject(val);
+            out.writeObject(valueItem);
 
             byte[] yourBytes = bos.toByteArray();
             out.flush();
