@@ -35,6 +35,7 @@ import ch.pren.bluetooth.DeviceListActivity;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.model.ConfigurationItem;
 import ch.pren.model.ValueItem;
 import ch.pren.multimedia.SoundHandler;
 import ch.pren.usbconnector.UsbService;
@@ -52,9 +53,12 @@ public class MainActivity extends Activity {
     private UsbService usbService;
     private MyHandler mHandler;
     private ValueItem valueItem;
+    private ConfigurationItem configItem;
     private SoundHandler soundHandler;
     private long zeitBegin;
-    private long zeitEnde;
+    private long zeitEndeSendData;
+    private long zeitReceiveInputBoard;
+    private long zeitGesamtSendData;
     private long zeitGesamt;
 
 
@@ -71,11 +75,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        // Context NICHT vor onCreate() beziehen! (stattdessen wie hier mittels Methode nach OnCreate)
         context = getAppContext();
         soundHandler = new SoundHandler(this);
         valueItem = ValueItem.getInstance();
+        configItem = ConfigurationItem.getInstance();
 
 
         BA = BluetoothAdapter.getDefaultAdapter();
@@ -91,8 +94,6 @@ public class MainActivity extends Activity {
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
 
         try {
-
-
             camera = Camera.open();
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,14 +106,12 @@ public class MainActivity extends Activity {
             // set Preview für Camera
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
             preview.addView(mPreview);
-
-        
-        
-        zeitBegin = System.currentTimeMillis();
+            zeitBegin = System.currentTimeMillis();
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
         activity = this;
     }
 
@@ -208,7 +207,11 @@ public class MainActivity extends Activity {
     private void detectBasket(byte[] rawImage) {
         Detector detector = new Detector(rawImage);
         byte calculatedAngle = detector.start();
-        sendAngleToBoard(calculatedAngle);
+
+           if(configItem.startSignal) {
+               sendAngleToBoard(calculatedAngle);
+           }
+
         valueItem.calculatedAngle = calculatedAngle;
         valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
         valueItem.mainArea = detector.getMainAreaX();
@@ -225,14 +228,14 @@ public class MainActivity extends Activity {
         if (usbService != null) { // if UsbService was correctly bounded, send data
             try {
                 usbService.write(sendArray);
-                Toast.makeText(context, "Sent data: " + angle, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Sent data to Board: " + angle, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
         }
-        zeitEnde = System.currentTimeMillis();
-        zeitGesamt = zeitEnde - zeitBegin;
-        Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
+        zeitEndeSendData = System.currentTimeMillis();
+        zeitGesamtSendData = zeitEndeSendData - zeitBegin;
+        Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamtSendData);
     }
 
     private void saveEditedImageInDir(final Bitmap editedImage) {
@@ -244,9 +247,14 @@ public class MainActivity extends Activity {
     }
 
     private void onReceiveFromBoard(final String receivedData) {
+        // TODO was kommt vom Board als "Endsignal"? -> Hier in equals abfragen..
         if (receivedData.equals("f")) {
             soundHandler.play();
-            Toast.makeText(context, "GAME FINISHED", Toast.LENGTH_SHORT).show();
+
+            zeitReceiveInputBoard = System.currentTimeMillis();
+            zeitGesamt = zeitReceiveInputBoard - zeitBegin;
+            Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
+            Toast.makeText(context, "GAME FINISHED in " + zeitGesamt + " milliseconds", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -397,12 +405,12 @@ public class MainActivity extends Activity {
             }
         }
     }
-    //---------------------------------------------- Bluetooth relevanten Methoden fertig -------------------------------------------------
+
     //</editor-fold>
 
 
-    //   ----------------------------- Innere Klassen + Helper Methoden ----------------------------------------------
-
+    //   ----------------------------- USB Service + Helper Methoden ----------------------------------------------
+    //<editor-fold desc="USB Service">
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
         if (!UsbService.SERVICE_CONNECTED) {
             Intent startService = new Intent(this, service);
@@ -484,6 +492,8 @@ public class MainActivity extends Activity {
             usbService = null;
         }
     };
+
+    //</editor-fold>
 
     private Context getAppContext() {
         return this.getApplicationContext();
