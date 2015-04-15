@@ -343,7 +343,7 @@ public class BluetoothSocket {
                     recieveData(buffer);
 
                     //Send the Message that the ConfigItem is recieved
-                    myMainActivity.takePic();
+                    myMainActivity.ConfigFileReaded = true;
 
 
                     // Send the obtained bytes to the UI Activity

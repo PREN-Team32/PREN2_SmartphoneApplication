@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private BluetoothSocket mCommandService = null;
-
+    public boolean ConfigFileReaded = false;
 
     public static Activity activity = null;
 
@@ -143,7 +143,9 @@ public class MainActivity extends Activity {
 
     public void takePic() {
         try {
-            camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+            if (ConfigFileReaded == true) {
+                camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -331,37 +333,7 @@ public class MainActivity extends Activity {
     }
 
     public void onClickSendData(View view) {
-        ValueItem val = ValueItem.getInstance();
-
-        //Test Object to Byte
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-
-
-        try {
-            out = new ObjectOutputStream(bos);
-            out.flush();
-            out.writeObject(val);
-
-            byte[] yourBytes = bos.toByteArray();
-            out.flush();
-            mCommandService.write(yourBytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-            try {
-                bos.close();
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-        }
+        takePic();
     }
 
 
