@@ -149,6 +149,8 @@ public class MainActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
+        /* So mol usklammeret oder
+        // Falls gebraucht ins onDestroy reintun
         if (camera != null) {
             mPreview.mCamera.stopPreview();
             mPreview.getHolder().removeCallback(mPreview);
@@ -159,6 +161,7 @@ public class MainActivity extends Activity {
         }
         unregisterReceiver(mUsbReceiver);
         unbindService(usbConnection);
+        */
     }
 
 
@@ -196,20 +199,24 @@ public class MainActivity extends Activity {
 
 
     private void detectBasket(byte[] rawImage) {
-        Detector detector = new Detector(rawImage);
-        byte calculatedAngle = detector.start();
+        try {
+            Detector detector = new Detector(rawImage);
+            byte calculatedAngle = detector.start();
 
-           if(configItem.startSignal) {
-               sendAngleToBoard(calculatedAngle);
-           }
+            if (configItem.startSignal) {
+                sendAngleToBoard(calculatedAngle);
+            }
 
-        valueItem.calculatedAngle = calculatedAngle;
-        valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
-        valueItem.mainArea = detector.getMainAreaX();
-        valueItem.foundShape = detector.getIsBucketShape();
-        saveEditedImageInDir(detector.getEditedImage());
+            valueItem.calculatedAngle = calculatedAngle;
+            valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
+            valueItem.mainArea = detector.getMainAreaX();
+            valueItem.foundShape = detector.getIsBucketShape();
+            saveEditedImageInDir(detector.getEditedImage());
 
-        SendValueItem();
+            SendValueItem();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void sendAngleToBoard(final byte angle) {
