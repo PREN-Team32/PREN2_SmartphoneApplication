@@ -81,12 +81,6 @@ public class MainActivity extends Activity {
         configItem = ConfigurationItem.getInstance();
 
 
-        BA = BluetoothAdapter.getDefaultAdapter();
-        //Überprüft ob BluetoothAdapter eingeschaltet ist, wenn nicht wird er eingeschaltet
-        if (!BA.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        }
 
 
         mHandler = new MyHandler();
@@ -95,11 +89,6 @@ public class MainActivity extends Activity {
 
         try {
             camera = Camera.open();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
             camera.setDisplayOrientation(90);
             mPreview = new CameraPreview(this, camera);
 
@@ -111,6 +100,14 @@ public class MainActivity extends Activity {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        BA = BluetoothAdapter.getDefaultAdapter();
+        //Überprüft ob BluetoothAdapter eingeschaltet ist, wenn nicht wird er eingeschaltet
+        if (!BA.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
+
 
         activity = this;
     }
@@ -137,9 +134,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public MainActivity getInstance() {
-        return this;
-    }
 
     public void takePic() {
         try {
@@ -155,14 +149,6 @@ public class MainActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
-        unregisterReceiver(mUsbReceiver);
-        unbindService(usbConnection);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
         if (camera != null) {
             mPreview.mCamera.stopPreview();
             mPreview.getHolder().removeCallback(mPreview);
@@ -171,7 +157,10 @@ public class MainActivity extends Activity {
             camera.release();
             camera = null;
         }
+        unregisterReceiver(mUsbReceiver);
+        unbindService(usbConnection);
     }
+
 
 
     /**
@@ -347,6 +336,7 @@ public class MainActivity extends Activity {
                             .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
                     // Get the BLuetoothDevice object
                     BluetoothDevice device = BA.getRemoteDevice(address);
+
                     // Attempt to connect to the device
                     mCommandService.connect(device);
                 }

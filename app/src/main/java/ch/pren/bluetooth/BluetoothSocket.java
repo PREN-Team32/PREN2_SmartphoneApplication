@@ -1,10 +1,8 @@
 package ch.pren.bluetooth;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.os.Message;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -61,6 +59,11 @@ public class BluetoothSocket {
         this.myMainActivity = myActivity;
         //mConnectionLostCount = 0;
 
+    }
+
+    public BluetoothSocket(Context context) {
+        mAdapter = BluetoothAdapter.getDefaultAdapter();
+        mState = STATE_NONE;
     }
 
     /**
@@ -335,9 +338,9 @@ public class BluetoothSocket {
             while (true) {
                 try {
                     // Read from the InputStream
-                    //int bytes = mmInStream.read(buffer);
+                    int bytes = mmInStream.read(buffer);
 
-                    mmInStream.read(buffer, 0, 10240);
+                    mmInStream.read(buffer, bytes, 10240 - bytes);
                     //Recieves the sended Data from the Computer -> Wow such english, much good
 
                     recieveData(buffer);
@@ -386,7 +389,6 @@ public class BluetoothSocket {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-
             }
         }
 
