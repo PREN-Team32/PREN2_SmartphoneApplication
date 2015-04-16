@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.List;
 import java.util.Set;
 
 import ch.pren.bluetooth.BluetoothSocket;
@@ -89,6 +90,19 @@ public class MainActivity extends Activity {
 
         try {
             camera = Camera.open();
+
+            // ----------- Width Height lesen und einstellen ------------
+
+            Camera.Parameters params = camera.getParameters();
+            List<Camera.Size> sizes = params.getSupportedPictureSizes();
+            for(Camera.Size size : sizes){
+                Log.d(DEBUG_TAG, "Height: " + size.height + "  Width: " + size.width);
+            }
+            params.setPictureSize(1920, 1080);
+            camera.setParameters(params);
+
+            // ---------- Ende ------------------
+            
             camera.setDisplayOrientation(90);
             mPreview = new CameraPreview(this, camera);
 
@@ -306,10 +320,12 @@ public class MainActivity extends Activity {
             out = new ObjectOutputStream(bos);
             out.flush();
             out.writeObject(valueItem);
+            Log.d(DEBUG_TAG, "Value Item write Object");
 
             byte[] yourBytes = bos.toByteArray();
             out.flush();
             mCommandService.write(yourBytes);
+            Log.d(DEBUG_TAG, "Value Item sent");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
