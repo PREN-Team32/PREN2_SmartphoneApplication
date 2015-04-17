@@ -11,8 +11,8 @@ import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
  * Created Nikk
  */
 public class ImageHandler {
-    protected static int INITIAL_IMAGE_WIDTH = 888;
-    protected static int INITIAL_IMAGE_HEIGHT = 500;
+    protected static int INITIAL_IMAGE_WIDTH = 888; //888
+    protected static int INITIAL_IMAGE_HEIGHT = 500; //500
     protected static int WIDTH_TO_OBSERVE = 488;
     protected static int HEIGHT_TO_OBSERVE = 500;
 
@@ -53,12 +53,15 @@ public class ImageHandler {
     public static Bitmap loadImage(byte[] bytes) {
 
         Bitmap tmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        Bitmap image;
+        Log.i("Tmp Bitmap", "MiauzGenau: Width:" + tmp.getWidth() + "  Height:" + tmp.getHeight());
+        Bitmap image = null;
         Bitmap finishedImage = null;
 
         try {
             //Resize the picture to 888x500 px (= INITIAL_IMAGE_WIDHT & _HEIGHT)
             image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
+
+            //image = Bitmap.createScaledBitmap(tmp,INITIAL_IMAGE_WIDTH,INITIAL_IMAGE_HEIGHT,false);
 
             //Cut out the black borders (background)
             finishedImage = Bitmap.createBitmap(image,(INITIAL_IMAGE_WIDTH-WIDTH_TO_OBSERVE)/2,(INITIAL_IMAGE_HEIGHT-HEIGHT_TO_OBSERVE)/2 , WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);

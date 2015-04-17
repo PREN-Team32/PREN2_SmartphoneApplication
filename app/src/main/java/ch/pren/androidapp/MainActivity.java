@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
             for(Camera.Size size : sizes){
                 Log.d(DEBUG_TAG, "Height: " + size.height + "  Width: " + size.width);
             }
-            params.setPictureSize(1920, 1080);
+            params.setPictureSize(1280, 960);
             camera.setParameters(params);
 
             // ---------- Ende ------------------
@@ -153,6 +153,7 @@ public class MainActivity extends Activity {
         try {
             if (ConfigFileReaded == true) {
                 camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+                camera.startPreview();
             }
         } catch (Exception ex) {
             ex.printStackTrace();

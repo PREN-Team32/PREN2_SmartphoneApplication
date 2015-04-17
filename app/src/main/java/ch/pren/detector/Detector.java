@@ -171,23 +171,28 @@ public class Detector {
     }
 
     private int calculateMainArea() {
-        int totalX = 0;
-        int totalY = 0;
-        int blackPixCount = 0;
-        for (int y = 0; y < editedImage.getHeight(); y++) {
-            for (int x = 0; x < editedImage.getWidth(); x++) {
-                int rgbCode = editedImage.getPixel(x, y);
-                if(rgbCode == Color.BLACK) {
-                    totalX += x;
-                    totalY+= y;
-                    blackPixCount++;
+        try {
+            int totalX = 0;
+            int totalY = 0;
+            int blackPixCount = 0;
+            for (int y = 0; y < editedImage.getHeight(); y++) {
+                for (int x = 0; x < editedImage.getWidth(); x++) {
+                    int rgbCode = editedImage.getPixel(x, y);
+                    if (rgbCode == Color.BLACK) {
+                        totalX += x;
+                        totalY += y;
+                        blackPixCount++;
+                    }
                 }
             }
+            this.mainAreaX = totalX / blackPixCount;
+            this.mainAreaY = totalY / blackPixCount;
+            Log.d(DEBUG_TAG, "Found Main Area: " + mainAreaX);
+            return mainAreaX;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return 0;
         }
-        this.mainAreaX = totalX/blackPixCount;
-        this.mainAreaY = totalY/blackPixCount;
-        Log.d(DEBUG_TAG, "Found Main Area: " + mainAreaX);
-        return mainAreaX;
     }
 
     private boolean isBucketShape(int x, int y, boolean fromLeft) {
