@@ -15,6 +15,7 @@ import java.util.Observable;
  */
 public class ConfigurationItem extends Observable implements Serializable {
     private static ConfigurationItem singeltonInstance;
+    private static final long serialVersionUID = 80833161384221638L;
 
     //Struct-Values:
     public float luminanceThreshold;
