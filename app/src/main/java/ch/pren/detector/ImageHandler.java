@@ -30,20 +30,13 @@ public class ImageHandler {
         Bitmap tmp;
         Bitmap finishedImage = null;
 
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-        //image = Bitmap.createBitmap(INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_WIDTH, conf);
+        tmp = BitmapFactory.decodeFile(filepath);
+        //Resize the picture to 888x500 px (= INITIAL_IMAGE_WIDHT & _HEIGHT)
+        image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
 
-        try {
-            tmp = BitmapFactory.decodeFile(filepath);
-            //Resize the picture to 888x500 px (= INITIAL_IMAGE_WIDHT & _HEIGHT)
-            image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
+        //Cut out the black borders (background)
+        finishedImage = Bitmap.createBitmap(image, (INITIAL_IMAGE_WIDTH - WIDTH_TO_OBSERVE) / 2, (INITIAL_IMAGE_HEIGHT - HEIGHT_TO_OBSERVE) / 2, WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
 
-            //Cut out the black borders (background)
-            finishedImage = Bitmap.createBitmap(image, (INITIAL_IMAGE_WIDTH - WIDTH_TO_OBSERVE) / 2, (INITIAL_IMAGE_HEIGHT - HEIGHT_TO_OBSERVE) / 2, WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
-
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
         Log.d(DEBUG_TAG, "ImageHandler: Image loaded (from path)");
         return finishedImage;
     }
@@ -57,18 +50,13 @@ public class ImageHandler {
         Bitmap image = null;
         Bitmap finishedImage = null;
 
-        try {
-            //Resize the picture to 888x500 px (= INITIAL_IMAGE_WIDHT & _HEIGHT)
-            image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
+        //Resize the picture to 888x500 px (= INITIAL_IMAGE_WIDHT & _HEIGHT)
+        image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
 
-            //image = Bitmap.createScaledBitmap(tmp,INITIAL_IMAGE_WIDTH,INITIAL_IMAGE_HEIGHT,false);
+        //Cut out the black borders (background)
+        finishedImage = Bitmap.createBitmap(image,(INITIAL_IMAGE_WIDTH-WIDTH_TO_OBSERVE)/2,(INITIAL_IMAGE_HEIGHT-HEIGHT_TO_OBSERVE)/2 , WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
 
-            //Cut out the black borders (background)
-            finishedImage = Bitmap.createBitmap(image,(INITIAL_IMAGE_WIDTH-WIDTH_TO_OBSERVE)/2,(INITIAL_IMAGE_HEIGHT-HEIGHT_TO_OBSERVE)/2 , WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
 
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-        }
         Log.d(DEBUG_TAG, "ImageHandler: Image loaded (with byte[])");
         return finishedImage;
     }
