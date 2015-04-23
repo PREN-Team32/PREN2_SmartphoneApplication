@@ -170,7 +170,7 @@ public class Detector {
         return xCoordinate;
     }
 
-    private int calculateMainArea() {
+    private int calculateMainArea() throws IllegalArgumentException {
         try {
             int totalX = 0;
             int totalY = 0;
@@ -185,10 +185,15 @@ public class Detector {
                     }
                 }
             }
-            this.mainAreaX = totalX / blackPixCount;
-            this.mainAreaY = totalY / blackPixCount;
-            Log.d(DEBUG_TAG, "Found Main Area: " + mainAreaX);
-            return mainAreaX;
+            if(blackPixCount == 0) {
+                throw new IllegalArgumentException(DEBUG_TAG + "#Detector: 0 black pixels were found in the picture.");
+            }
+            else {
+                this.mainAreaX = totalX / blackPixCount;
+                this.mainAreaY = totalY / blackPixCount;
+                Log.d(DEBUG_TAG, "#Detector: Found Main Area at coordinates: " + mainAreaX + " / " + mainAreaY);
+                return mainAreaX;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return 0;

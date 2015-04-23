@@ -5,6 +5,8 @@
  */
 package ch.pren.detector;
 
+import ch.pren.androidapp.MainActivity;
+
 /**
  *
  * @author Niklaus
@@ -33,7 +35,7 @@ public class AngleCalculator {
         }
     }
     
-    public static byte getSteps(int objectBorder) {
+    public static byte getSteps(int objectBorder) throws IllegalArgumentException {
         byte steps = 0;
         double angle = getAngle(objectBorder);
         System.out.println("#AngleCalculator: Resulting angle from given Coordinate = " + angle + "°");
@@ -42,9 +44,12 @@ public class AngleCalculator {
             steps = (byte)Math.abs(angle/1.8);
         }
         else {
-            steps = 11;
-            System.err.println("#AngleCalculator: Angle too large!!!");
+            throw new IllegalArgumentException("#AngleCalculator: Angle (" + angle + "°) is too large!!!");
         }
         return steps;
+    }
+
+    public static void setPixelToCm(double pixelToCm) {
+        AngleCalculator.pixelToCm = pixelToCm;
     }
 }
