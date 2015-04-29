@@ -402,8 +402,8 @@ public class BluetoothSocket {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-
                 mmOutStream.flush();
+
 
                 // Share the sent message back to the UI Activity
 //                mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)

@@ -314,15 +314,15 @@ public class MainActivity extends Activity {
 
         //Test Object to Bytef
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
+        ObjectOutputStream out = null;
 
 
         try {
             out = new ObjectOutputStream(bos);
-            out.flush();
+
             out.writeObject(valueItem);
             Log.d(DEBUG_TAG, "Value Item write Object");
-
+            out.flush();
             byte[] yourBytes = bos.toByteArray();
             out.flush();
             mCommandService.write(yourBytes);
