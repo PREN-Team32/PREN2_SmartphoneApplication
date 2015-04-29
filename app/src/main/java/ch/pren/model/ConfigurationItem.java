@@ -30,12 +30,16 @@ public class ConfigurationItem extends Observable implements Serializable {
     //Boolean flag to indicate start
     public boolean startSignal;
 
+    //Factor for AngleCalculation
+    public double pixelToCm;
+
     private ConfigurationItem() {
         this.luminanceThreshold = 0.3f;
         this.widthToObserve = 488;
         this.heightToObserve = 500;
         this.visitedPixels = 3;
         this.startSignal = false;
+        this.pixelToCm = 0.07463d;
     }
 
     public static ConfigurationItem getInstance() {
@@ -50,5 +54,4 @@ public class ConfigurationItem extends Observable implements Serializable {
         setChanged();
         notifyObservers();
     }
-
 }  
