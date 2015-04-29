@@ -413,6 +413,10 @@ public class BluetoothSocket {
             }
         }
 
+        public void writeString(String string) {
+
+        }
+
 //        public void write(int out) {
 //            try {
 //                mmOutStream.write(out);

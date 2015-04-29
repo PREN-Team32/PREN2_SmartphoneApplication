@@ -21,8 +21,8 @@
         android:id="@+id/bluetoothButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClickBluetooth"
-        android:text="Show Devices"
+        android:onClick="onClickWireless"
+        android:text="Connect..."
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
@@ -35,5 +35,14 @@
         android:layout_below="@+id/camera_preview"
         android:layout_toLeftOf="@+id/bluetoothButton"
         android:layout_toStartOf="@+id/bluetoothButton" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editIP"
+        android:layout_below="@+id/camera_preview"
+        android:layout_toRightOf="@+id/bluetoothButton"
+        android:layout_alignRight="@+id/camera_preview"
+        android:layout_alignEnd="@+id/camera_preview" />
 
 </RelativeLayout>

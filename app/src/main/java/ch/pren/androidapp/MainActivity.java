@@ -21,16 +21,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Set;
 
+import ch.pren.Wireless.AsyncTaskRecieveObject;
+import ch.pren.Wireless.AsyncTaskSendObject;
 import ch.pren.bluetooth.BluetoothSocket;
 import ch.pren.bluetooth.DeviceListActivity;
 import ch.pren.camera.PhotoHandler;
@@ -69,6 +71,8 @@ public class MainActivity extends Activity {
     private static final int REQUEST_ENABLE_BT = 2;
     private BluetoothSocket mCommandService = null;
     public boolean ConfigFileReaded = false;
+
+    private EditText editText;
 
     public static Activity activity = null;
 
@@ -151,10 +155,10 @@ public class MainActivity extends Activity {
 
     public void takePic() {
         try {
-            if (ConfigFileReaded == true) {
+            // if (ConfigFileReaded == true) {
                 camera.takePicture(shutterCallback, rawCallback, jpegCallback);
                 camera.startPreview();
-            }
+            // }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -311,7 +315,10 @@ public class MainActivity extends Activity {
     //ValueItem wird in ein ByteArray geparst und gesendet
     private void SendValueItem() {
 
-
+        editText = (EditText) findViewById(R.id.editIP);
+        AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(editText.getText().toString(), 11111);
+        asyncTaskSendObject.execute();
+        /*
         //Test Object to Bytef
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out = null;
@@ -342,7 +349,7 @@ public class MainActivity extends Activity {
             } catch (IOException ex) {
                 // ignore close exception
             }
-        }
+        }*/
     }
 
     public void onClickSendData(View view) {
@@ -421,6 +428,13 @@ public class MainActivity extends Activity {
         filter.addAction(UsbService.ACTION_USB_NOT_SUPPORTED);
         filter.addAction(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED);
         registerReceiver(mUsbReceiver, filter);
+    }
+
+    public void onClickWireless(View view) {
+
+        editText = (EditText) findViewById(R.id.editIP);
+        AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(editText.getText().toString(), 11111);
+        asyncConnection.execute();
     }
 
     /*
