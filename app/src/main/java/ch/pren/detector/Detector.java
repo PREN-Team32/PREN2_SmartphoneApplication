@@ -23,7 +23,7 @@ public class Detector {
     private long gebrauchteZeit;
     private int objectBorder;
     private boolean isBucketShape;
-
+    private double pixeltocm;
 
     public long getGebrauchteZeit() {
         return gebrauchteZeit;
@@ -70,6 +70,10 @@ public class Detector {
         Detector.VISITED_PIXELS = VISITED_PIXELS;
     }
 
+    public void setPixeltocm(double pixeltocm) {
+        this.pixeltocm = pixeltocm;
+    }
+
     public void loadNewImage(String imageName) {
         originalImage = ImageHandler.loadImage(imageName);
         editedImage = originalImage;
@@ -111,6 +115,7 @@ public class Detector {
 
         //Step 3:
         //Evaluate results
+        AngleCalculator.setPixelToCm(this.pixeltocm);
         byte steps = AngleCalculator.getSteps(objectBorder);
         zeitNachher = System.currentTimeMillis();
         this.gebrauchteZeit = zeitNachher - zeitVorher;

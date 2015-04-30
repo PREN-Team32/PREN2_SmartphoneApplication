@@ -38,6 +38,7 @@ import ch.pren.bluetooth.DeviceListActivity;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
+import ch.pren.detector.ImageHandler;
 import ch.pren.model.ConfigurationItem;
 import ch.pren.model.ValueItem;
 import ch.pren.multimedia.SoundHandler;
@@ -219,7 +220,14 @@ public class MainActivity extends Activity {
 
     private void detectBasket(byte[] rawImage) {
         try {
+            ConfigurationItem configurationItem = ConfigurationItem.getInstance();
             Detector detector = new Detector(rawImage);
+            detector.setLuminanceThreshold(configurationItem.luminanceThreshold);
+            detector.setVisitedPixels(configurationItem.visitedPixels);
+            ImageHandler.setObservedHeight(configurationItem.heightToObserve);
+            ImageHandler.setObservedWidth(configurationItem.widthToObserve);
+            detector.setPixeltocm(configurationItem.pixelToCm);
+
             byte calculatedAngle = detector.start();
 
             if (configItem.startSignal) {
@@ -275,6 +283,12 @@ public class MainActivity extends Activity {
         }
     }
 
+    public void onClickWireless(View view) {
+
+        editText = (EditText) findViewById(R.id.editIP);
+        AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(editText.getText().toString(), 11111);
+        asyncConnection.execute();
+    }
 
     //--------------------------------------  Bluetooth relevanten Methoden    ---------------------------------------------------------
     //<editor-fold desc="Bluetooth">
@@ -302,6 +316,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     private void setupCommand() {
         mCommandService = new BluetoothSocket(this, this);
     }
@@ -318,6 +333,7 @@ public class MainActivity extends Activity {
         editText = (EditText) findViewById(R.id.editIP);
         AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(editText.getText().toString(), 11111);
         asyncTaskSendObject.execute();
+
         /*
         //Test Object to Bytef
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -354,6 +370,7 @@ public class MainActivity extends Activity {
 
     public void onClickSendData(View view) {
         takePic();
+
     }
 
 
@@ -428,13 +445,6 @@ public class MainActivity extends Activity {
         filter.addAction(UsbService.ACTION_USB_NOT_SUPPORTED);
         filter.addAction(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED);
         registerReceiver(mUsbReceiver, filter);
-    }
-
-    public void onClickWireless(View view) {
-
-        editText = (EditText) findViewById(R.id.editIP);
-        AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(editText.getText().toString(), 11111);
-        asyncConnection.execute();
     }
 
     /*

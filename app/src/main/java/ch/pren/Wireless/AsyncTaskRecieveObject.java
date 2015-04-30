@@ -1,6 +1,7 @@
 package ch.pren.Wireless;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -31,13 +32,15 @@ public class AsyncTaskRecieveObject extends AsyncTask<Void, Void, Void> {
         try {
 
             socket = new Socket(dstAddress, dstPort);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStreamn = new ObjectInputStream(socket.getInputStream());
 
+            ObjectInputStream objectInputStreamn = new ObjectInputStream(socket.getInputStream());
+            Log.d("Recieve ConfItem", "InputStream openend");
 
             ConfigurationItem configurationItem = ConfigurationItem.getInstance();
             configurationItem = (ConfigurationItem) objectInputStreamn.readObject();
-
+            Log.d("Recieve ConfItem", "ConfigurationItem succesfully recieved");
+            Log.d("Lumiance", "||Lumiance: " + configurationItem.luminanceThreshold);
+            Log.d("PixeltoCM", "" + configurationItem.pixelToCm);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

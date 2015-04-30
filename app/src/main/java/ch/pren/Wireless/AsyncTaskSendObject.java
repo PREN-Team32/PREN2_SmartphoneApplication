@@ -1,6 +1,7 @@
 package ch.pren.Wireless;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -30,10 +31,12 @@ public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
 
             socket = new Socket(dstAddress, dstPort);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStreamn = new ObjectInputStream(socket.getInputStream());
 
+            Log.d("SendSocket", "Streams openend");
             ValueItem valueItem = ValueItem.getInstance();
+
             objectOutputStream.writeObject(valueItem);
+            Log.d("SendSocket", "Value Item gesendet");
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
