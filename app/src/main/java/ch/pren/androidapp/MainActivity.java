@@ -3,7 +3,6 @@ package ch.pren.androidapp;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,15 +25,11 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Set;
 
 import ch.pren.Wireless.AsyncTaskRecieveObject;
 import ch.pren.Wireless.AsyncTaskSendObject;
-import ch.pren.bluetooth.BluetoothSocket;
-import ch.pren.bluetooth.DeviceListActivity;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
 import ch.pren.detector.Detector;
@@ -66,12 +61,6 @@ public class MainActivity extends Activity {
     private long zeitGesamt;
 
 
-    //Bluetooth Memebervariabeln
-    private BluetoothAdapter BA = null;
-    private static final int REQUEST_CONNECT_DEVICE = 1;
-    private static final int REQUEST_ENABLE_BT = 2;
-    private BluetoothSocket mCommandService = null;
-    public boolean ConfigFileReaded = false;
 
     private EditText editText;
 
@@ -119,14 +108,6 @@ public class MainActivity extends Activity {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        BA = BluetoothAdapter.getDefaultAdapter();
-        //Überprüft ob BluetoothAdapter eingeschaltet ist, wenn nicht wird er eingeschaltet
-        if (!BA.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        }
-
 
         activity = this;
     }
@@ -283,48 +264,31 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void onClickWireless(View view) {
 
+    //--------------------------------------  Wireless relevanten Methoden    ---------------------------------------------------------
+    //<editor-fold desc="Wireless">
+
+
+    public void onClickWireless(View view) {
+        recieveConfItem();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    //ToDo: Fill method for recieveing ConfItem
+    private void recieveConfItem() {
         editText = (EditText) findViewById(R.id.editIP);
         AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(editText.getText().toString(), 11111);
         asyncConnection.execute();
     }
 
-    //--------------------------------------  Bluetooth relevanten Methoden    ---------------------------------------------------------
-    //<editor-fold desc="Bluetooth">
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mCommandService != null) {
-            mCommandService.stop();
-        }
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
-
-        if (!BA.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        }
-        // otherwise set up the command service
-        else {
-            if (mCommandService == null)
-                setupCommand();
-        }
-    }
-
-
-    private void setupCommand() {
-        mCommandService = new BluetoothSocket(this, this);
-    }
-
-    public void onClickBluetooth(View view) {
-        //Startet die DeviceList suche für BluetoothConnection search
-        Intent serverIntent = new Intent(this, DeviceListActivity.class);
-        startActivityForResult(serverIntent, 1);
+        recieveConfItem();
     }
 
     //ValueItem wird in ein ByteArray geparst und gesendet
@@ -334,86 +298,17 @@ public class MainActivity extends Activity {
         AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(editText.getText().toString(), 11111);
         asyncTaskSendObject.execute();
 
-        /*
-        //Test Object to Bytef
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream out = null;
-
-
-        try {
-            out = new ObjectOutputStream(bos);
-
-            out.writeObject(valueItem);
-            Log.d(DEBUG_TAG, "Value Item write Object");
-            out.flush();
-            byte[] yourBytes = bos.toByteArray();
-            out.flush();
-            mCommandService.write(yourBytes);
-            Log.d(DEBUG_TAG, "Value Item sent");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-            try {
-                bos.close();
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-        }*/
+        recieveConfItem();
     }
 
     public void onClickSendData(View view) {
         takePic();
-
-    }
-
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_CONNECT_DEVICE:
-                // When DeviceListActivity returns with a device to connect
-                if (resultCode == Activity.RESULT_OK) {
-                    // Get the device MAC address
-                    String address = data.getExtras()
-                            .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                    // Get the BLuetoothDevice object
-                    BluetoothDevice device = BA.getRemoteDevice(address);
-
-                    // Attempt to connect to the device
-                    mCommandService.connect(device);
-                }
-                break;
-            case REQUEST_ENABLE_BT:
-                // When the request to enable Bluetooth returns
-                if (resultCode == Activity.RESULT_OK) {
-                    // Bluetooth is now enabled, so set up a chat session
-                    setupCommand();
-                } else {
-                    // User did not enable Bluetooth or an error occured
-                    Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Performing this check in onResume() covers the case in which BT was
-        // not enabled during onStart(), so we were paused to enable it...
-        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mCommandService != null) {
-            if (mCommandService.getState() == BluetoothSocket.STATE_NONE) {
-                mCommandService.start();
-            }
-        }
+        recieveConfItem();
     }
 
     //</editor-fold>

@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 import ch.pren.model.ConfigurationItem;
@@ -26,24 +27,26 @@ public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... arg0) {
-        Socket socket = null;
+        ServerSocket serversocket = null;
         try {
 
-            socket = new Socket(dstAddress, dstPort);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            serversocket = new ServerSocket(11111);
+            Socket pipe = serversocket.accept();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(pipe.getOutputStream());
 
             Log.d("SendSocket", "Streams openend");
             ValueItem valueItem = ValueItem.getInstance();
 
             objectOutputStream.writeObject(valueItem);
             Log.d("SendSocket", "Value Item gesendet");
+            pipe.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
 
-            if (socket != null) {
+            if (serversocket != null) {
                 try {
-                    socket.close();
+                    serversocket.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -28,12 +29,13 @@ public class AsyncTaskRecieveObject extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... arg0) {
-        Socket socket = null;
+        ServerSocket serversocket = null;
         try {
 
-            socket = new Socket(dstAddress, dstPort);
+            serversocket = new ServerSocket(11111);
+            Socket pipe = serversocket.accept();
 
-            ObjectInputStream objectInputStreamn = new ObjectInputStream(socket.getInputStream());
+            ObjectInputStream objectInputStreamn = new ObjectInputStream(pipe.getInputStream());
             Log.d("Recieve ConfItem", "InputStream openend");
 
             ConfigurationItem configurationItem = ConfigurationItem.getInstance();
@@ -41,15 +43,15 @@ public class AsyncTaskRecieveObject extends AsyncTask<Void, Void, Void> {
             Log.d("Recieve ConfItem", "ConfigurationItem succesfully recieved");
             Log.d("Lumiance", "||Lumiance: " + configurationItem.luminanceThreshold);
             Log.d("PixeltoCM", "" + configurationItem.pixelToCm);
+            pipe.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
 
-            if (socket != null) {
+            if (serversocket != null) {
                 try {
-                    socket.close();
+                    serversocket.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
