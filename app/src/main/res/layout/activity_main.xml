@@ -36,13 +36,14 @@
         android:layout_toLeftOf="@+id/bluetoothButton"
         android:layout_toStartOf="@+id/bluetoothButton" />
 
-    <EditText
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/editIP"
-        android:layout_below="@+id/camera_preview"
+        android:text="Start Motors"
+        android:id="@+id/btnStartMotors"
+        android:layout_alignTop="@+id/bluetoothButton"
         android:layout_toRightOf="@+id/bluetoothButton"
-        android:layout_alignRight="@+id/camera_preview"
-        android:layout_alignEnd="@+id/camera_preview" />
+        android:layout_toEndOf="@+id/bluetoothButton"
+        android:onClick="onClickStartMotor" />
 
 </RelativeLayout>

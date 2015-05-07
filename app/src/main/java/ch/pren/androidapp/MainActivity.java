@@ -60,10 +60,6 @@ public class MainActivity extends Activity {
     private long zeitGesamtSendData;
     private long zeitGesamt;
 
-
-
-    private EditText editText;
-
     public static Activity activity = null;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -280,7 +276,7 @@ public class MainActivity extends Activity {
 
     //ToDo: Fill method for recieveing ConfItem
     private void recieveConfItem() {
-        editText = (EditText) findViewById(R.id.editIP);
+
         AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
         asyncConnection.execute();
     }
@@ -294,7 +290,7 @@ public class MainActivity extends Activity {
     //ValueItem wird in ein ByteArray geparst und gesendet
     private void SendValueItem() {
 
-        editText = (EditText) findViewById(R.id.editIP);
+
         AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
         asyncTaskSendObject.execute();
 
@@ -340,6 +336,10 @@ public class MainActivity extends Activity {
         filter.addAction(UsbService.ACTION_USB_NOT_SUPPORTED);
         filter.addAction(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED);
         registerReceiver(mUsbReceiver, filter);
+    }
+
+    public void onClickStartMotor(View view) {
+
     }
 
     /*
