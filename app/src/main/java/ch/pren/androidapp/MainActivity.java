@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Set;
 
@@ -59,6 +60,8 @@ public class MainActivity extends Activity {
     private long zeitReceiveInputBoard;
     private long zeitGesamtSendData;
     private long zeitGesamt;
+    private SequenceHandler sequenceHandler;
+    private boolean sequenceStarted;
 
     public static Activity activity = null;
 
@@ -74,7 +77,7 @@ public class MainActivity extends Activity {
 
 
 
-        mHandler = new MyHandler();
+        mHandler = new MyHandler(this);
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
 
@@ -224,20 +227,36 @@ public class MainActivity extends Activity {
     }
 
     private void sendAngleToBoard(final byte angle) {
-        byte[] sendArray = new byte[1];
-        sendArray[0] = angle;
-
-        if (usbService != null) { // if UsbService was correctly bounded, send data
-            try {
-                usbService.write(sendArray);
-                Toast.makeText(context, "Sent data to Board: " + angle, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
-        }
+        final int waitForStepperTime = 1000;
+        final int waitUntilEndTime = 9000;
+        final String[] dataStringsForAngle = { "BLDC use 0\n\r", "BLDC setangle " + angle + "\n\r" };
+        final String[] dataStringsForSupplier = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
+        final String[] dataStringsForShutdown = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
+        sequenceHandler = new SequenceHandler(dataStringsForAngle);
+        Toast.makeText(context, "Sent data to Board: " + angle, Toast.LENGTH_SHORT).show();
         zeitEndeSendData = System.currentTimeMillis();
         zeitGesamtSendData = zeitEndeSendData - zeitBegin;
         Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamtSendData);
+
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    Thread.sleep(waitForStepperTime);
+                    sequenceHandler = new SequenceHandler(dataStringsForSupplier);
+                    Thread.sleep(waitUntilEndTime);
+                    sequenceHandler = new SequenceHandler(dataStringsForShutdown);
+                } catch (InterruptedException e) {
+                    Log.d(DEBUG_TAG, "Interrupted Thread in sendAngleToBoard");
+                }
+            }
+        });
+        thread1.start();
+
+        // Warten ... Sekunden, dann sequence für Fliessband
+
+        // Warten ... Sekunden, dann sequence für shutdown
+
     }
 
     private void saveEditedImageInDir(final Bitmap editedImage) {
@@ -250,14 +269,13 @@ public class MainActivity extends Activity {
 
     private void onReceiveFromBoard(final String receivedData) {
         // TODO was kommt vom Board als "Endsignal"? -> Hier in equals abfragen..
-        if (receivedData.equals("f")) {
-            soundHandler.play();
+
 
             zeitReceiveInputBoard = System.currentTimeMillis();
             zeitGesamt = zeitReceiveInputBoard - zeitBegin;
             Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
             Toast.makeText(context, "GAME FINISHED in " + zeitGesamt + " milliseconds", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
 
@@ -339,22 +357,69 @@ public class MainActivity extends Activity {
     }
 
     public void onClickStartMotor(View view) {
+        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + 5000 + "\n\r",
+                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + 5000 + "\n\r", "BLDC on\n\r"  };
+        sequenceHandler = new SequenceHandler(dataStrings);
+    }
 
+    /**
+     * Start Motor mit dieser Klasse.
+     */
+    private class SequenceHandler {
+        private String[] dataStrings;
+        private int arrayLength = dataStrings.length;
+        private int counter = 0;
+
+        public SequenceHandler(String[] dataStrings) {
+            this.dataStrings = dataStrings;
+            try {
+                sequenceStarted = true;
+                usbService.write(dataStrings[0].getBytes("US-ASCII"));
+                counter++;
+            }catch(Exception e){
+                Toast.makeText(getApplication(), "Failure in Sending data-package to USB", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        public void receiveUSBMessage(){
+            try {
+                if(counter <= arrayLength && dataStrings[counter] != null) {
+                    Thread.sleep(40);
+                    usbService.write(dataStrings[counter].getBytes("US-ASCII"));
+                    counter++;
+                }else{
+                    sequenceStarted = counter <= arrayLength;
+                }
+            }catch(Exception e){
+                Toast.makeText(getApplication(), "Failure in Receiving/Sending data-package to USB", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /*
      * This handler will be passed to UsbService. Data received from serial port is displayed through this handler
 	 */
     private class MyHandler extends Handler {
-        public MyHandler() {
+        private final WeakReference<MainActivity> mActivity;
+
+        public MyHandler(MainActivity activity)
+        {
+            mActivity = new WeakReference<>(activity);
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
+        public void handleMessage(Message msg)
+        {
+            Log.d("thomSerial", "Handler received a msg");
+
+            switch(msg.what)
+            {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
-                    String data = (String) msg.obj;
-                    onReceiveFromBoard(data);
+                    if(mActivity.get().sequenceStarted){
+                        mActivity.get().sequenceHandler.receiveUSBMessage();
+                        Log.d("thomSerial", "Handler sent Message to MotHandler");
+                    }
+                    Log.d("thomSerial", "Handler: no suitable use for Input");
                     break;
             }
         }
