@@ -44,7 +44,8 @@ public class AngleCalculator {
             steps = (byte)Math.abs(angle/1.8);
         }
         else {
-            throw new IllegalArgumentException("#AngleCalculator: Angle (" + angle + "°) is too large!!!");
+            //throw new IllegalArgumentException("#AngleCalculator: Angle (" + angle + "°) is too large!!!");
+            System.out.println("#AngleCalculator: Angle (" + angle + "°) is too large!!!");
         }
         return steps;
     }

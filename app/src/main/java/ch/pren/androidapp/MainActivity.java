@@ -281,7 +281,7 @@ public class MainActivity extends Activity {
     //ToDo: Fill method for recieveing ConfItem
     private void recieveConfItem() {
         editText = (EditText) findViewById(R.id.editIP);
-        AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(editText.getText().toString(), 11111);
+        AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
         asyncConnection.execute();
     }
 
@@ -295,7 +295,7 @@ public class MainActivity extends Activity {
     private void SendValueItem() {
 
         editText = (EditText) findViewById(R.id.editIP);
-        AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(editText.getText().toString(), 11111);
+        AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
         asyncTaskSendObject.execute();
 
         recieveConfItem();

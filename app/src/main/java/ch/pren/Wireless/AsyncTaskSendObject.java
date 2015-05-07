@@ -16,12 +16,10 @@ import ch.pren.model.ValueItem;
  * Created by livio on 29.04.2015.
  */
 public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
-    String dstAddress;
     int dstPort;
     String response = "";
 
-    public AsyncTaskSendObject(String addr, int port) {
-        dstAddress = addr;
+    public AsyncTaskSendObject(int port) {
         dstPort = port;
     }
 
