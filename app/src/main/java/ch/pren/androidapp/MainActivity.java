@@ -227,12 +227,18 @@ public class MainActivity extends Activity {
     }
 
     private void sendAngleToBoard(final byte angle) {
+        // Umrechenen winkel in Schritte und richtung L oder R
+
+        String angleAsSteps = angleToSteps(angle);
+
         final int waitForStepperTime = 1000;
         final int waitUntilEndTime = 9000;
         final String[] dataStringsForAngle = { "BLDC use 0\n\r", "BLDC setangle " + angle + "\n\r" };
         final String[] dataStringsForSupplier = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
         final String[] dataStringsForShutdown = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
         sequenceHandler = new SequenceHandler(dataStringsForAngle);
+
+
         Toast.makeText(context, "Sent data to Board: " + angle, Toast.LENGTH_SHORT).show();
         zeitEndeSendData = System.currentTimeMillis();
         zeitGesamtSendData = zeitEndeSendData - zeitBegin;
@@ -257,6 +263,18 @@ public class MainActivity extends Activity {
 
         // Warten ... Sekunden, dann sequence für shutdown
 
+    }
+
+    private String angleToSteps(final byte angle){
+        // 1° entspricht zwischen 1984 und 2048 mic steps.
+        // !!!!!!!!! Winkel besser als DOUBLE in Grad inkl Vorzeichen !!!!!!
+        double calcAngle = 1;
+        if(calcAngle <= 0){
+            double notSignedAngle = Math.abs(calcAngle);
+            return "L " + (notSignedAngle * 2000 + 1);
+        }else {
+            return "R " + (calcAngle * 2000);
+        }
     }
 
     private void saveEditedImageInDir(final Bitmap editedImage) {
