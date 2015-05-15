@@ -410,7 +410,7 @@ public class MainActivity extends Activity {
         public void receiveUSBMessage(){
             try {
                 if(counter <= dataStrings.length) {
-                    Thread.sleep(40);
+                    Thread.sleep(70);
                     usbService.write(dataStrings[counter].getBytes("US-ASCII"));
                     counter++;
                 }else{
