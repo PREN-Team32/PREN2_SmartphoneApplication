@@ -234,7 +234,7 @@ public class MainActivity extends Activity {
         final int waitForStepperTime = 1000;
         final int waitUntilEndTime = 9000;
         final String[] dataStringsForAngle = { "l6480 move " + angleAsSteps + "\n\r" };
-        final String[] dataStringsForSupplier = { "DC setpwm 100\n\r" };
+        final String[] dataStringsForSupplier = {"DC on\n\r",  "DC setpwm 100\n\r" };
         final String[] dataStringsForShutdown = { "DC off\n\r", "BLDC use 0\n\r", "BLDC off\n\r",
                 "BLDC use 1\n\r", "BLDC off\n\r" };
         sequenceHandler = new SequenceHandler(dataStringsForAngle);
@@ -312,27 +312,33 @@ public class MainActivity extends Activity {
 
     //ToDo: Fill method for recieveing ConfItem
     private void recieveConfItem() {
+        try {
+            AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
+            asyncConnection.execute().get();
 
-        AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
-        asyncConnection.execute();
-
-        takePic();
+            takePic();
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        recieveConfItem();
     }
 
     //ValueItem wird in ein ByteArray geparst und gesendet
     private void SendValueItem() {
+        try {
 
+            AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
+            asyncTaskSendObject.execute().get();
 
-        AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
-        asyncTaskSendObject.execute();
-
-        recieveConfItem();
+            recieveConfItem();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     public void onClickSendData(View view) {
@@ -342,7 +348,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        recieveConfItem();
     }
 
     //</editor-fold>
@@ -377,8 +382,8 @@ public class MainActivity extends Activity {
     }
 
     public void onClickStartMotor(View view) {
-        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + 5000 + "\n\r",
-                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + 5000 + "\n\r", "BLDC on\n\r"  };
+        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + 3000 + "\n\r",
+                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + 3000 + "\n\r", "BLDC on\n\r"  };
         sequenceHandler = new SequenceHandler(dataStrings);
     }
 

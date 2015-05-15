@@ -17,7 +17,6 @@ import ch.pren.model.ValueItem;
  */
 public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
     int dstPort;
-    String response = "";
 
     public AsyncTaskSendObject(int port) {
         dstPort = port;
@@ -41,23 +40,19 @@ public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-
             if (serversocket != null) {
                 try {
                     serversocket.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         }
         return null;
-
     }
 
     @Override
     protected void onPostExecute(Void result) {
-
         super.onPostExecute(result);
     }
 }
