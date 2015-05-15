@@ -209,9 +209,14 @@ public class MainActivity extends Activity {
             detector.setPixeltocm(configurationItem.pixelToCm);
 
             double calculatedAngle = detector.start();
-
+            Log.d("Method DetectBasket" , "Bevor configItem.start singal check");
             if (configItem.startSignal) {
+                Log.d("Method DetectBasket" , "In configItem.start singal check");
+                Toast.makeText(context, "Start Signal erhalten", Toast.LENGTH_SHORT).show();
                 sendAngleToBoard(calculatedAngle);
+                Log.d("Method DetectBasket" , "Nach configItem.start singal check");
+
+
             }
 
             valueItem.calculatedAngle = calculatedAngle;
