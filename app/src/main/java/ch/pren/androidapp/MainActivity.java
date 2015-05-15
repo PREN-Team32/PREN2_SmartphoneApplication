@@ -234,7 +234,8 @@ public class MainActivity extends Activity {
     private void sendAngleToBoard(final double angle) {
         // Umrechenen winkel in Schritte und richtung L oder R
 
-        String angleAsSteps = angleToSteps(angle);
+       // String angleAsSteps = angleToSteps(angle);
+        String angleAsSteps = "f 10000";
 
         final int waitForStepperTime = 1000;
         final int waitUntilEndTime = 9000;
@@ -245,10 +246,12 @@ public class MainActivity extends Activity {
         sequenceHandler = new SequenceHandler(dataStringsForAngle);
 
 
+        /*
         Toast.makeText(context, "Sent data to Board: " + angleAsSteps, Toast.LENGTH_SHORT).show();
         zeitEndeSendData = System.currentTimeMillis();
         zeitGesamtSendData = zeitEndeSendData - zeitBegin;
         Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden des Winkels:: " + zeitGesamtSendData);
+        */
 
         Thread thread1 = new Thread(new Runnable() {
             @Override
@@ -256,8 +259,10 @@ public class MainActivity extends Activity {
                 try {
                     Thread.sleep(waitForStepperTime);
                     sequenceHandler = new SequenceHandler(dataStringsForSupplier);
+                    /*
                     Thread.sleep(waitUntilEndTime);
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown);
+                    */
                 } catch (InterruptedException e) {
                     Log.d(DEBUG_TAG, "Interrupted Thread in sendAngleToBoard");
                 }
@@ -347,7 +352,8 @@ public class MainActivity extends Activity {
     }
 
     public void onClickSendData(View view) {
-        takePic();
+        sendAngleToBoard(3.6);
+        Log.d(DEBUG_TAG, "on Click");
     }
 
     @Override
@@ -419,7 +425,7 @@ public class MainActivity extends Activity {
                     usbService.write(dataStrings[counter].getBytes("US-ASCII"));
                     counter++;
                 }else{
-                    sequenceStarted = counter <= arrayLength;
+                    sequenceStarted = counter <= dataStrings.length;
                 }
             }catch(Exception e){
                Log.d(DEBUG_TAG,"Failure in Receiving/Sending data-package to USB");
