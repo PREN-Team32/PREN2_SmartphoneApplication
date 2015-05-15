@@ -417,7 +417,7 @@ public class MainActivity extends Activity {
                     sequenceStarted = counter <= arrayLength;
                 }
             }catch(Exception e){
-                Toast.makeText(getApplication(), "Failure in Receiving/Sending data-package to USB", Toast.LENGTH_SHORT).show();
+               Log.d(DEBUG_TAG,"Failure in Receiving/Sending data-package to USB");
             }
         }
     }
@@ -443,7 +443,7 @@ public class MainActivity extends Activity {
                 case UsbService.MESSAGE_FROM_SERIAL_PORT:
                     if(mActivity.get().sequenceStarted){
                         mActivity.get().sequenceHandler.receiveUSBMessage();
-                        Log.d("thomSerial", "Handler sent Message to MotHandler");
+                        Log.d("thomSerial", "MEssage from Board: " + msg.getData().toString());
                     }
                     Log.d("thomSerial", "Handler: no suitable use for Input");
                     break;
