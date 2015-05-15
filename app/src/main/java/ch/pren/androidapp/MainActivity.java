@@ -313,6 +313,8 @@ public class MainActivity extends Activity {
 
         AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
         asyncConnection.execute();
+
+        takePic();
     }
 
     @Override
