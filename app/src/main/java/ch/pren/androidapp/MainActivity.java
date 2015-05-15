@@ -208,7 +208,7 @@ public class MainActivity extends Activity {
             ImageHandler.setObservedWidth(configurationItem.widthToObserve);
             detector.setPixeltocm(configurationItem.pixelToCm);
 
-            byte calculatedAngle = detector.start();
+            double calculatedAngle = detector.start();
 
             if (configItem.startSignal) {
                 sendAngleToBoard(calculatedAngle);
@@ -226,23 +226,23 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void sendAngleToBoard(final byte angle) {
+    private void sendAngleToBoard(final double angle) {
         // Umrechenen winkel in Schritte und richtung L oder R
 
         String angleAsSteps = angleToSteps(angle);
 
         final int waitForStepperTime = 1000;
         final int waitUntilEndTime = 9000;
-        final String[] dataStringsForAngle = { "BLDC use 0\n\r", "BLDC setangle " + angle + "\n\r" };
+        final String[] dataStringsForAngle = { "BLDC use 0\n\r", "BLDC setangle " + angleAsSteps + "\n\r" };
         final String[] dataStringsForSupplier = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
         final String[] dataStringsForShutdown = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
         sequenceHandler = new SequenceHandler(dataStringsForAngle);
 
 
-        Toast.makeText(context, "Sent data to Board: " + angle, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Sent data to Board: " + angleAsSteps, Toast.LENGTH_SHORT).show();
         zeitEndeSendData = System.currentTimeMillis();
         zeitGesamtSendData = zeitEndeSendData - zeitBegin;
-        Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamtSendData);
+        Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden des Winkels:: " + zeitGesamtSendData);
 
         Thread thread1 = new Thread(new Runnable() {
             @Override
@@ -265,15 +265,13 @@ public class MainActivity extends Activity {
 
     }
 
-    private String angleToSteps(final byte angle){
+    private String angleToSteps(final double angle){
         // 1° entspricht zwischen 1984 und 2048 mic steps.
-        // !!!!!!!!! Winkel besser als DOUBLE in Grad inkl Vorzeichen !!!!!!
-        double calcAngle = 1;
-        if(calcAngle <= 0){
-            double notSignedAngle = Math.abs(calcAngle);
+        if(angle <= 0){
+            double notSignedAngle = Math.abs(angle);
             return "L " + (notSignedAngle * 2000 + 1);
         }else {
-            return "R " + (calcAngle * 2000);
+            return "R " + (angle * 2000);
         }
     }
 
@@ -286,7 +284,7 @@ public class MainActivity extends Activity {
     }
 
     private void onReceiveFromBoard(final String receivedData) {
-        // TODO was kommt vom Board als "Endsignal"? -> Hier in equals abfragen..
+
 
 
             zeitReceiveInputBoard = System.currentTimeMillis();
@@ -385,11 +383,12 @@ public class MainActivity extends Activity {
      */
     private class SequenceHandler {
         private String[] dataStrings;
-        private int arrayLength = dataStrings.length;
+        private int arrayLength;
         private int counter = 0;
 
         public SequenceHandler(String[] dataStrings) {
             this.dataStrings = dataStrings;
+            arrayLength = dataStrings.length;
             try {
                 sequenceStarted = true;
                 usbService.write(dataStrings[0].getBytes("US-ASCII"));

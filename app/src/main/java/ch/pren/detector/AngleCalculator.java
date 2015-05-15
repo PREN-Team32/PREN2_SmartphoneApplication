@@ -16,7 +16,7 @@ public class AngleCalculator {
     private static final int fullImageWidthInPx = 2592;
     private static final int fullBucketWidthInPx = 520;
     
-    private static double getAngle(int objectBorder) {
+    public static double getAngle(int objectBorder) {
         double angle = 0.0;
         double ankathete = 170;
         double gegenkathete;
