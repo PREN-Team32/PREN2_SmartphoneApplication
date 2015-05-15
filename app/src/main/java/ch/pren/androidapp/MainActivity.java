@@ -233,9 +233,10 @@ public class MainActivity extends Activity {
 
         final int waitForStepperTime = 1000;
         final int waitUntilEndTime = 9000;
-        final String[] dataStringsForAngle = { "BLDC use 0\n\r", "BLDC setangle " + angleAsSteps + "\n\r" };
-        final String[] dataStringsForSupplier = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
-        final String[] dataStringsForShutdown = { "BLDC use 0\n\r", "BLDC setangle\n\r" };
+        final String[] dataStringsForAngle = { "l6480 move " + angleAsSteps + "\n\r" };
+        final String[] dataStringsForSupplier = { "DC setpwm 100\n\r" };
+        final String[] dataStringsForShutdown = { "DC off\n\r", "BLDC use 0\n\r", "BLDC off\n\r",
+                "BLDC use 1\n\r", "BLDC off\n\r" };
         sequenceHandler = new SequenceHandler(dataStringsForAngle);
 
 
@@ -269,9 +270,10 @@ public class MainActivity extends Activity {
         // 1° entspricht zwischen 1984 und 2048 mic steps.
         if(angle <= 0){
             double notSignedAngle = Math.abs(angle);
-            return "L " + (notSignedAngle * 2000 + 1);
+            // links ist f
+            return "f " + (notSignedAngle * 2000 + 1);
         }else {
-            return "R " + (angle * 2000);
+            return "r " + (angle * 2000);
         }
     }
 
