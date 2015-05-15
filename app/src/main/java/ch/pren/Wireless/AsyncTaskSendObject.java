@@ -27,7 +27,7 @@ public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... arg0) {
         ServerSocket serversocket = null;
         try {
-
+            Log.d("SendSocket", "Open Connection for SendObject");
             serversocket = new ServerSocket(11111);
             Socket pipe = serversocket.accept();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(pipe.getOutputStream());
