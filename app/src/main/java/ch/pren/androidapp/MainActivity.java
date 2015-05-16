@@ -238,7 +238,7 @@ public class MainActivity extends Activity {
         String angleAsSteps = "f 10000";
 
         final int waitForStepperTime = 1000;
-        final int waitUntilEndTime = 9000;
+        final int waitUntilEndTime = 4000;
         final String[] dataStringsForAngle = { "l6480 move " + angleAsSteps + "\n\r" };
         final String[] dataStringsForSupplier = {"DC on\n\r",  "DC setpwm 100\n\r" };
         final String[] dataStringsForShutdown = { "DC off\n\r", "BLDC use 0\n\r", "BLDC off\n\r",
@@ -259,10 +259,10 @@ public class MainActivity extends Activity {
                 try {
                     Thread.sleep(waitForStepperTime);
                     sequenceHandler = new SequenceHandler(dataStringsForSupplier);
-                    /*
+
                     Thread.sleep(waitUntilEndTime);
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown);
-                    */
+
                 } catch (InterruptedException e) {
                     Log.d(DEBUG_TAG, "Interrupted Thread in sendAngleToBoard");
                 }
