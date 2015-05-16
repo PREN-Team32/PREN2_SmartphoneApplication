@@ -210,12 +210,11 @@ public class MainActivity extends Activity {
 
             double calculatedAngle = detector.start();
             Log.d("Method DetectBasket" , "Bevor configItem.start singal check");
-            if (configItem.startSignal) {
+            if (configItem.startSignal == true) {
                 Log.d("Method DetectBasket" , "In configItem.start singal check");
                 Toast.makeText(context, "Start Signal erhalten", Toast.LENGTH_SHORT).show();
                 sendAngleToBoard(calculatedAngle);
                 Log.d("Method DetectBasket" , "Nach configItem.start singal check");
-
 
             }
 
@@ -297,13 +296,10 @@ public class MainActivity extends Activity {
 
     private void onReceiveFromBoard(final String receivedData) {
 
-
-
             zeitReceiveInputBoard = System.currentTimeMillis();
             zeitGesamt = zeitReceiveInputBoard - zeitBegin;
             Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
             Toast.makeText(context, "GAME FINISHED in " + zeitGesamt + " milliseconds", Toast.LENGTH_SHORT).show();
-
     }
 
 
@@ -325,7 +321,7 @@ public class MainActivity extends Activity {
         try {
             AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
             asyncConnection.execute().get();
-
+            configItem = ConfigurationItem.getInstance();
             takePic();
         }
         catch(Exception ex){

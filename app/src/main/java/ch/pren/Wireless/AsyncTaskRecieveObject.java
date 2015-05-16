@@ -37,10 +37,11 @@ public class AsyncTaskRecieveObject extends AsyncTask<Void, Void, Void> {
             Log.d("Recieve ConfItem", "InputStream openend");
 
             ConfigurationItem configurationItem = ConfigurationItem.getInstance();
-            configurationItem = (ConfigurationItem) objectInputStreamn.readObject();
+            configurationItem.overrideConfig((ConfigurationItem) objectInputStreamn.readObject());
             Log.d("Recieve ConfItem", "ConfigurationItem succesfully recieved");
             Log.d("Lumiance", "||Lumiance: " + configurationItem.luminanceThreshold);
             Log.d("PixeltoCM", "" + configurationItem.pixelToCm);
+            Log.d("Start Singal", "Start Singal: " + configurationItem.startSignal);
             pipe.close();
         } catch (Exception ex) {
             ex.printStackTrace();

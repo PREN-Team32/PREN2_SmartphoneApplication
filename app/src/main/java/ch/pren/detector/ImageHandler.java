@@ -34,6 +34,7 @@ public class ImageHandler {
         //Resize the picture to 888x500 px (= INITIAL_IMAGE_WIDHT & _HEIGHT)
         image = Bitmap.createBitmap(tmp, 0, 0, INITIAL_IMAGE_WIDTH, INITIAL_IMAGE_HEIGHT);
 
+
         //Cut out the black borders (background)
         finishedImage = Bitmap.createBitmap(image, (INITIAL_IMAGE_WIDTH - WIDTH_TO_OBSERVE) / 2, (INITIAL_IMAGE_HEIGHT - HEIGHT_TO_OBSERVE) / 2, WIDTH_TO_OBSERVE, HEIGHT_TO_OBSERVE);
 
