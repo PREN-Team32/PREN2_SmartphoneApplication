@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
-import static ch.pren.detector.ImageHandler.BORDER_LEFT;
+import static ch.pren.detector.ImageHandler.WINDOW_WIDTH;
 import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
 
 /**
@@ -122,7 +122,7 @@ public class Detector {
         int xCoordinate;
         Log.d(DEBUG_TAG, "#Detektor: Attempting to find bucket..");
         //Seek shape of the basket, starting from the right side.
-        if(mainArea < BORDER_LEFT /2) {
+        if(mainArea < WINDOW_WIDTH /2) {
             xCoordinate = Integer.MIN_VALUE;
             for (int y = editedImage.getHeight()-1; y > 0; y--) {
                 //Care for visitedFields variable (x must be larger!!)
@@ -141,7 +141,7 @@ public class Detector {
             }
         }
         //Seek shape of the basket, starting from the left side.
-        else if(mainArea > BORDER_LEFT /2) {
+        else if(mainArea > WINDOW_WIDTH /2) {
             xCoordinate = Integer.MAX_VALUE;
             for (int y = 0; y < editedImage.getHeight(); y++) {
                 //Care for visitedFields variable (x must be larger!!)
@@ -158,7 +158,7 @@ public class Detector {
         }
         //Else, basket must be in the middle.
         else {
-            xCoordinate = BORDER_LEFT /2;
+            xCoordinate = WINDOW_WIDTH /2;
         }
 
         if(xCoordinate == Integer.MIN_VALUE || xCoordinate == Integer.MAX_VALUE) {
