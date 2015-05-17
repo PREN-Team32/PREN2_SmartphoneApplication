@@ -2,7 +2,6 @@ package ch.pren.androidapp;
 
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -20,7 +19,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -33,6 +31,7 @@ import ch.pren.Wireless.AsyncTaskRecieveObject;
 import ch.pren.Wireless.AsyncTaskSendObject;
 import ch.pren.camera.PhotoHandler;
 import ch.pren.camera.CameraPreview;
+import ch.pren.detector.AngleCalculator;
 import ch.pren.detector.Detector;
 import ch.pren.detector.ImageHandler;
 import ch.pren.model.ConfigurationItem;
@@ -49,7 +48,6 @@ public class MainActivity extends Activity {
     private Camera camera;
     private CameraPreview mPreview;
     private PhotoHandler photoHandler;
-    private Context context;
     private UsbService usbService;
     private MyHandler mHandler;
     private ValueItem valueItem;
@@ -62,19 +60,15 @@ public class MainActivity extends Activity {
     private long zeitGesamt;
     private SequenceHandler sequenceHandler;
     private boolean sequenceStarted;
-
     public static Activity activity = null;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        context = getAppContext();
         soundHandler = new SoundHandler(this);
         valueItem = ValueItem.getInstance();
         configItem = ConfigurationItem.getInstance();
-
-
 
 
         mHandler = new MyHandler(this);
@@ -190,7 +184,7 @@ public class MainActivity extends Activity {
      */
     Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            photoHandler = new PhotoHandler(context);
+            photoHandler = new PhotoHandler(getApplicationContext());
             photoHandler.onPictureTaken(data, camera);
             valueItem.originalImage = Base64.encodeToString(data, Base64.DEFAULT);
             detectBasket(data);
@@ -211,10 +205,10 @@ public class MainActivity extends Activity {
 
             double calculatedAngle = detector.start();
             Log.d("Method DetectBasket" , "Bevor configItem.start singal check");
-            if (configItem.startSignal == true) {
+            if (configItem.startSignal) {
                 Log.d("Method DetectBasket" , "In configItem.start singal check");
-                Toast.makeText(context, "Start Signal erhalten", Toast.LENGTH_SHORT).show();
-                sendAngleToBoard(calculatedAngle);
+                Toast.makeText(getApplicationContext(), "Start Signal erhalten", Toast.LENGTH_SHORT).show();
+                sendCommandsToBoard(calculatedAngle);
                 Log.d("Method DetectBasket" , "Nach configItem.start singal check");
             }
 
@@ -230,20 +224,22 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void sendAngleToBoard(final double angle) {
-        // Umrechenen winkel in Schritte und richtung L oder R
+    private void sendCommandsToBoard(final double angle) {
 
-       // String angleAsSteps = angleToSteps(angle);
-        String angleAsSteps = "f 10000";
-
-        final int waitForStepperTime = 1000;
+        final int waitForStepperToEndTime = 1000;
         final int waitUntilEndTime = 4000;
+
+        String angleAsSteps = AngleCalculator.getStepsAsString(angle);
+        int toReadjustRPM = calculateRpmFittingAngle(angle);
+
         final String[] dataStringsForAngle = { "l6480 move " + angleAsSteps + "\n\r" };
+        final String[] dataStringsForReadjustingRPM = { "BLDC use 0\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r",
+                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r", "BLDC on\n\r" };
         final String[] dataStringsForSupplier = {"DC on\n\r",  "DC setpwm 100\n\r" };
         final String[] dataStringsForShutdown = { "DC off\n\r", "BLDC use 0\n\r", "BLDC off\n\r",
                 "BLDC use 1\n\r", "BLDC off\n\r" };
-        sequenceHandler = new SequenceHandler(dataStringsForAngle);
 
+        sequenceHandler = new SequenceHandler(dataStringsForAngle);
 
         /*
         Toast.makeText(context, "Sent data to Board: " + angleAsSteps, Toast.LENGTH_SHORT).show();
@@ -256,35 +252,33 @@ public class MainActivity extends Activity {
             @Override
             public void run(){
                 try {
-                    Thread.sleep(waitForStepperTime);
+                    Thread.sleep(100);
+                    sequenceHandler = new SequenceHandler(dataStringsForReadjustingRPM);
+
+                    Thread.sleep(waitForStepperToEndTime);
                     sequenceHandler = new SequenceHandler(dataStringsForSupplier);
+
+                    // Hier irgendwann endsignal ausgeben!
 
                     Thread.sleep(waitUntilEndTime);
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown);
 
                 } catch (InterruptedException e) {
-                    Log.d(DEBUG_TAG, "Interrupted Thread in sendAngleToBoard");
+                    Log.d(DEBUG_TAG, "Interrupted Thread in sendCommandsToBoard");
                 }
             }
         });
         thread1.start();
-
-        // Warten ... Sekunden, dann sequence für Fliessband
-
-        // Warten ... Sekunden, dann sequence für shutdown
-
     }
 
-    private String angleToSteps(final double angle){
-        // 1° entspricht zwischen 1984 und 2048 mic steps.
-        if(angle <= 0){
-            double notSignedAngle = Math.abs(angle);
-            // links ist f
-            return "f " + (notSignedAngle * 2000 + 1);
-        }else {
-            return "r " + (angle * 2000);
-        }
+    private int calculateRpmFittingAngle(final double angle){
+        int lowestRPM = 3150;
+        int highestRPM = 3190;
+        double maxAngle = 19.45;
+        double absAngle = Math.abs(angle);
+        return (int) (lowestRPM +(((highestRPM - lowestRPM) / maxAngle) * absAngle));
     }
+
 
     private void saveEditedImageInDir(final Bitmap editedImage) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -294,22 +288,26 @@ public class MainActivity extends Activity {
         photoHandler.savePictureToDir(byteArray);
     }
 
-    private void onReceiveFromBoard(final String receivedData) {
-
-            zeitReceiveInputBoard = System.currentTimeMillis();
-            zeitGesamt = zeitReceiveInputBoard - zeitBegin;
-            Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden der Daten:: " + zeitGesamt);
-            Toast.makeText(context, "GAME FINISHED in " + zeitGesamt + " milliseconds", Toast.LENGTH_SHORT).show();
-    }
-
-
-    //--------------------------------------  Wireless relevanten Methoden    ---------------------------------------------------------
-    //<editor-fold desc="Wireless">
-
+    // ----------------------------- onClick Methoden --------------------------
 
     public void onClickWireless(View view) {
         recieveConfItem();
     }
+
+    public void onClickStartMotor(View view) {
+        int startRPM = 3000;
+        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + startRPM + "\n\r",
+                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + startRPM + "\n\r", "BLDC on\n\r"  };
+        sequenceHandler = new SequenceHandler(dataStrings);
+    }
+
+    public void onClickSendData(View view) {
+        sendCommandsToBoard(3.6);
+        Log.d(DEBUG_TAG, "on Click ");
+    }
+
+    //--------------------------------------  Wireless relevanten Methoden    ---------------------------------------------------------
+    //<editor-fold desc="Wireless">
 
     @Override
     protected void onDestroy() {
@@ -345,11 +343,6 @@ public class MainActivity extends Activity {
         }catch(Exception ex){
             ex.printStackTrace();
         }
-    }
-
-    public void onClickSendData(View view) {
-        sendAngleToBoard(3.6);
-        Log.d(DEBUG_TAG, "on Click");
     }
 
     @Override
@@ -388,23 +381,17 @@ public class MainActivity extends Activity {
         registerReceiver(mUsbReceiver, filter);
     }
 
-    public void onClickStartMotor(View view) {
-        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + 3000 + "\n\r",
-                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + 3000 + "\n\r", "BLDC on\n\r"  };
-        sequenceHandler = new SequenceHandler(dataStrings);
-    }
+
 
     /**
-     * Start Motor mit dieser Klasse.
+     * Sende ein Packet von Kommandos an das Freedom Board
      */
     private class SequenceHandler {
         private String[] dataStrings;
-        private int arrayLength;
         private int counter = 0;
 
         public SequenceHandler(String[] dataStrings) {
             this.dataStrings = dataStrings;
-            arrayLength = dataStrings.length;
             try {
                 sequenceStarted = true;
                 usbService.write(dataStrings[0].getBytes("US-ASCII"));
@@ -443,17 +430,15 @@ public class MainActivity extends Activity {
         @Override
         public void handleMessage(Message msg)
         {
-            Log.d("thomSerial", "Handler received a msg");
+            Log.d(DEBUG_TAG, "Handler received a msg");
 
-            switch(msg.what)
-            {
-                case UsbService.MESSAGE_FROM_SERIAL_PORT:
+           if(msg.what == UsbService.MESSAGE_FROM_SERIAL_PORT){
                     if(mActivity.get().sequenceStarted){
                         mActivity.get().sequenceHandler.receiveUSBMessage();
-                        Log.d("thomSerial", "MEssage from Board: " + msg.getData().toString());
+                        Log.d(DEBUG_TAG, "Message from Board: " + msg.getData().toString());
+                    }else {
+                        Log.d(DEBUG_TAG, "Handler: no suitable use for Input from Board");
                     }
-                    Log.d("thomSerial", "Handler: no suitable use for Input");
-                    break;
             }
         }
     }
@@ -497,10 +482,5 @@ public class MainActivity extends Activity {
     };
 
     //</editor-fold>
-
-    private Context getAppContext() {
-        return this.getApplicationContext();
-    }
-
 
 }

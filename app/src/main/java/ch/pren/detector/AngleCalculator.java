@@ -1,11 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package ch.pren.detector;
 
-import ch.pren.androidapp.MainActivity;
 
 /**
  *
@@ -43,6 +38,17 @@ public class AngleCalculator {
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
             return angle*(-1);
             //returns positive angle if object on left side
+        }
+    }
+
+    public static String getStepsAsString(final double angle){
+        // 1° entspricht 1964 mic steps
+        if(angle <= 0){
+            double notSignedAngle = Math.abs(angle);
+            // links ist f
+            return "f " + ( (int) (notSignedAngle * 1964) + 1);
+        }else {
+            return "r " + ( (int) (angle * 1964));
         }
     }
 
