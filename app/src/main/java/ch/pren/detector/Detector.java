@@ -108,7 +108,8 @@ public class Detector {
         //Step 3:
         //Evaluate results
         AngleCalculator.setPixelToCm(this.pixeltocm);
-        double angleInDegrees = AngleCalculator.getAngle(objectBorder);
+        boolean isLeft = (mainAreaX > WINDOW_WIDTH /2);
+        double angleInDegrees = AngleCalculator.getAngle(objectBorder, isLeft);
         zeitNachher = System.currentTimeMillis();
         this.gebrauchteZeit = zeitNachher - zeitVorher;
         Log.d(DEBUG_TAG, "#Detektor: Object detected at X = " + objectBorder);

@@ -18,20 +18,24 @@ public class AngleCalculator {
     private static final int halfBucketWidthInPx = 140;
     private static int bucketMidPosition = 0;
     
-    public static double getAngle(int objectBorder) {
+    public static double getAngle(int objectBorder, boolean isLeft) {
         double angle = 0.0;
         double ankathete = 170;
         double gegenkathete;
         int midPositionInPx = (fullImageWidthInPx / 2);
-        if(objectBorder >= midPositionInPx) {
+        if(isLeft) {
             bucketMidPosition = objectBorder + halfBucketWidthInPx;
+        }
+        else {
+            bucketMidPosition = objectBorder - halfBucketWidthInPx;
+        }
+        if(objectBorder >= midPositionInPx) {            ;
             gegenkathete = (bucketMidPosition - midPositionInPx)*pixelToCm;
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
             return angle;
             //returns negative angle if object on right side
         }
         else {
-            bucketMidPosition = objectBorder - halfBucketWidthInPx;
             if(bucketMidPosition < 0) {
                 bucketMidPosition = 0;
             }
@@ -41,21 +45,7 @@ public class AngleCalculator {
             //returns positive angle if object on left side
         }
     }
-    
-    public static byte getSteps(int objectBorder) throws IllegalArgumentException {
-        byte steps = 0;
-        double angle = getAngle(objectBorder);
-        System.out.println("#AngleCalculator: Resulting angle from given Coordinate = " + angle + "°");
-        
-        if(angle < 20.5) {
-            steps = (byte)Math.abs(angle/1.8);
-        }
-        else {
-            //throw new IllegalArgumentException("#AngleCalculator: Angle (" + angle + "°) is too large!!!");
-            System.out.println("#AngleCalculator: Angle (" + angle + "°) is too large!!!");
-        }
-        return steps;
-    }
+
 
     public static void setPixelToCm(double pixelToCm) {
         AngleCalculator.pixelToCm = pixelToCm;
