@@ -12,9 +12,11 @@ import ch.pren.androidapp.MainActivity;
  * @author Niklaus
  */
 public class AngleCalculator {
-    private static double pixelToCm = 0.07463;
-    private static final int fullImageWidthInPx = 2592;
-    private static final int fullBucketWidthInPx = 520;
+    private static double pixelToCm = 0.1272;
+    private static final int fullImageWidthInPx = ImageHandler.WINDOW_WIDTH;
+    private static final int fullBucketWidthInPx = ImageHandler.WINDOW_HEIGHT;
+    private static final int halfBucketWidthInPx = 140;
+    private static int bucketMidPosition = 0;
     
     public static double getAngle(int objectBorder) {
         double angle = 0.0;
@@ -22,15 +24,20 @@ public class AngleCalculator {
         double gegenkathete;
         int midPositionInPx = (fullImageWidthInPx / 2);
         if(objectBorder >= midPositionInPx) {
-            gegenkathete = objectBorder - midPositionInPx;
+            bucketMidPosition = objectBorder + halfBucketWidthInPx;
+            gegenkathete = (bucketMidPosition - midPositionInPx)*pixelToCm;
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
-            return angle*(-1);
+            return angle;
             //returns negative angle if object on right side
         }
         else {
-            gegenkathete = midPositionInPx - objectBorder;
+            bucketMidPosition = objectBorder - halfBucketWidthInPx;
+            if(bucketMidPosition < 0) {
+                bucketMidPosition = 0;
+            }
+            gegenkathete = (midPositionInPx - bucketMidPosition)*pixelToCm;
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
-            return angle;
+            return angle*(-1);
             //returns positive angle if object on left side
         }
     }

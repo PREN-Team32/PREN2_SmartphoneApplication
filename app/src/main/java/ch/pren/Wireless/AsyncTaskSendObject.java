@@ -3,9 +3,13 @@ package ch.pren.Wireless;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -34,7 +38,15 @@ public class AsyncTaskSendObject extends AsyncTask<Void, Void, Void> {
             Log.d("SendSocket", "Streams openend");
             ValueItem valueItem = ValueItem.getInstance();
 
+
+            File file = new File("storage/emulated/0/","PREN_T32/txt.txt");
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            OutputStreamWriter outputStream = new OutputStreamWriter(fileOutputStream);
+            outputStream.write(valueItem.originalImage);
+
             objectOutputStream.writeObject(valueItem);
+
+
             Log.d("SendSocket", "Value Item gesendet");
             pipe.close();
         } catch (Exception ex) {

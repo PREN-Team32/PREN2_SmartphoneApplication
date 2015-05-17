@@ -92,6 +92,7 @@ public class MainActivity extends Activity {
                 Log.d(DEBUG_TAG, "Height: " + size.height + "  Width: " + size.width);
             }
             params.setPictureSize(1280, 960);
+            //params.setPictureSize(2592,1944);
             camera.setParameters(params);
 
             // ---------- Ende ------------------
@@ -215,7 +216,6 @@ public class MainActivity extends Activity {
                 Toast.makeText(context, "Start Signal erhalten", Toast.LENGTH_SHORT).show();
                 sendAngleToBoard(calculatedAngle);
                 Log.d("Method DetectBasket" , "Nach configItem.start singal check");
-
             }
 
             valueItem.calculatedAngle = calculatedAngle;

@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
-import static ch.pren.detector.ImageHandler.WIDTH_TO_OBSERVE;
+import static ch.pren.detector.ImageHandler.BORDER_LEFT;
 import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
 
 /**
@@ -42,11 +42,6 @@ public class Detector {
     private long zeitNachher;
 
 
-    public Detector(String imageName) {
-        originalImage = ImageHandler.loadImage(imageName);
-        editedImage = originalImage;
-    }
-
     public Detector(byte[] rawImage) {
         originalImage = ImageHandler.loadImage(rawImage);
         editedImage = originalImage;
@@ -74,10 +69,7 @@ public class Detector {
         this.pixeltocm = pixeltocm;
     }
 
-    public void loadNewImage(String imageName) {
-        originalImage = ImageHandler.loadImage(imageName);
-        editedImage = originalImage;
-    }
+
 
     public double start() {
         //Step 1:
@@ -130,7 +122,7 @@ public class Detector {
         int xCoordinate;
         Log.d(DEBUG_TAG, "#Detektor: Attempting to find bucket..");
         //Seek shape of the basket, starting from the right side.
-        if(mainArea < WIDTH_TO_OBSERVE/2) {
+        if(mainArea < BORDER_LEFT /2) {
             xCoordinate = Integer.MIN_VALUE;
             for (int y = editedImage.getHeight()-1; y > 0; y--) {
                 //Care for visitedFields variable (x must be larger!!)
@@ -149,7 +141,7 @@ public class Detector {
             }
         }
         //Seek shape of the basket, starting from the left side.
-        else if(mainArea > WIDTH_TO_OBSERVE/2) {
+        else if(mainArea > BORDER_LEFT /2) {
             xCoordinate = Integer.MAX_VALUE;
             for (int y = 0; y < editedImage.getHeight(); y++) {
                 //Care for visitedFields variable (x must be larger!!)
@@ -166,7 +158,7 @@ public class Detector {
         }
         //Else, basket must be in the middle.
         else {
-            xCoordinate = WIDTH_TO_OBSERVE/2;
+            xCoordinate = BORDER_LEFT /2;
         }
 
         if(xCoordinate == Integer.MIN_VALUE || xCoordinate == Integer.MAX_VALUE) {
