@@ -204,7 +204,7 @@ public class MainActivity extends Activity {
 
             double calculatedAngle = detector.start();
             Log.d("Method DetectBasket" , "Bevor configItem.start singal check");
-            if (configItem.startSignal) {
+            if (configurationItem.startSignal) {
                 Log.d("Method DetectBasket" , "In configItem.start singal check");
                 Toast.makeText(getApplicationContext(), "Start Signal erhalten", Toast.LENGTH_SHORT).show();
                 sendCommandsToBoard(calculatedAngle);
