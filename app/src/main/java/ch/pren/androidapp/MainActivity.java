@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
     private UsbService usbService;
     private MyHandler mHandler;
     private ValueItem valueItem;
-    private ConfigurationItem configItem;
+
     private SoundHandler soundHandler;
     private long zeitBegin;
     private long zeitEndeSendData;
@@ -72,10 +72,6 @@ public class MainActivity extends Activity {
         context = getAppContext();
         soundHandler = new SoundHandler(this);
         valueItem = ValueItem.getInstance();
-        configItem = ConfigurationItem.getInstance();
-
-
-
 
         mHandler = new MyHandler(this);
         setFilters();  // Start listening notifications from UsbService
@@ -211,7 +207,7 @@ public class MainActivity extends Activity {
 
             double calculatedAngle = detector.start();
             Log.d("Method DetectBasket" , "Bevor configItem.start singal check");
-            if (configItem.startSignal == true) {
+            if (configurationItem.startSignal == true) {
                 Log.d("Method DetectBasket" , "In configItem.start singal check");
                 Toast.makeText(context, "Start Signal erhalten", Toast.LENGTH_SHORT).show();
                 sendAngleToBoard(calculatedAngle);
@@ -321,7 +317,7 @@ public class MainActivity extends Activity {
         try {
             AsyncTaskRecieveObject asyncConnection = new AsyncTaskRecieveObject(11111);
             asyncConnection.execute().get();
-            configItem = ConfigurationItem.getInstance();
+            
             takePic();
         }
         catch(Exception ex){

@@ -37,16 +37,24 @@ public class AsyncTaskRecieveObject extends AsyncTask<Void, Void, Void> {
             Log.d("Recieve ConfItem", "InputStream openend");
 
             ConfigurationItem configurationItem = ConfigurationItem.getInstance();
+            //Object o = objectInputStreamn.readObject();
             configurationItem.overrideConfig((ConfigurationItem) objectInputStreamn.readObject());
+
+
+
+            ConfigurationItem cf = ConfigurationItem.getInstance();
+
             Log.d("Recieve ConfItem", "ConfigurationItem succesfully recieved");
-            Log.d("Lumiance", "||Lumiance: " + configurationItem.luminanceThreshold);
-            Log.d("PixeltoCM", "" + configurationItem.pixelToCm);
-            Log.d("Start Singal", "Start Singal: " + configurationItem.startSignal);
+            Log.d("Lumiance", "||Lumiance: " + cf.luminanceThreshold);
+            Log.d("PixeltoCM", "" + cf.pixelToCm);
+            Log.d("HeighttoObserve", " " + cf.heightToObserve);
+            Log.d("WidthtoObserve", " " + cf.widthToObserve);
+            Log.d("Start Singal", "Start Singal: " + cf.startSignal);
             pipe.close();
         } catch (Exception ex) {
+            Log.d("RecieveConfItem", "Error: " + ex.getMessage());
             ex.printStackTrace();
         } finally {
-
             if (serversocket != null) {
                 try {
                     serversocket.close();
@@ -56,7 +64,6 @@ public class AsyncTaskRecieveObject extends AsyncTask<Void, Void, Void> {
             }
         }
         return null;
-
     }
 
     @Override
