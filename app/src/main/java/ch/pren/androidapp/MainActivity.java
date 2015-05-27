@@ -51,6 +51,8 @@ public class MainActivity extends Activity {
     private MyHandler mHandler;
     private ValueItem valueItem;
 
+    
+
     private long zeitBegin;
     private long zeitEndeSendData;
     private long zeitReceiveInputBoard;
