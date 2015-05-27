@@ -36,7 +36,6 @@ import ch.pren.detector.Detector;
 import ch.pren.detector.ImageHandler;
 import ch.pren.model.ConfigurationItem;
 import ch.pren.model.ValueItem;
-import ch.pren.multimedia.SoundHandler;
 import ch.pren.usbconnector.UsbService;
 
 /**
@@ -52,7 +51,6 @@ public class MainActivity extends Activity {
     private MyHandler mHandler;
     private ValueItem valueItem;
 
-    private SoundHandler soundHandler;
     private long zeitBegin;
     private long zeitEndeSendData;
     private long zeitReceiveInputBoard;
@@ -66,7 +64,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        soundHandler = new SoundHandler(this);
         valueItem = ValueItem.getInstance();
 
 
