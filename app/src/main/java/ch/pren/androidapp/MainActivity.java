@@ -210,12 +210,14 @@ public class MainActivity extends Activity {
                 Log.d("Method DetectBasket" , "Nach configItem.start singal check");
             }
 
-            valueItem.calculatedAngle = calculatedAngle;
-            valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
-            valueItem.mainArea = detector.getMainAreaX();
-            valueItem.foundShape = detector.getIsBucketShape();
-            saveEditedImageInDir(detector.getEditedImage());
-
+            ValueItem valueItem = ValueItem.getInstance();
+            if(valueItem.finished == false) {
+                valueItem.calculatedAngle = calculatedAngle;
+                valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
+                valueItem.mainArea = detector.getMainAreaX();
+                valueItem.foundShape = detector.getIsBucketShape();
+                saveEditedImageInDir(detector.getEditedImage());
+            }
             SendValueItem();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -231,11 +233,14 @@ public class MainActivity extends Activity {
         int toReadjustRPM = calculateRpmFittingAngle(angle);
 
         final String[] dataStringsForAngle = { "l6480 move " + angleAsSteps + "\n\r" };
-        final String[] dataStringsForReadjustingRPM = { "BLDC use 0\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r",
-                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r", "BLDC on\n\r" };
-        final String[] dataStringsForSupplier = {"DC on\n\r",  "DC setpwm 100\n\r" };
-        final String[] dataStringsForShutdown = { "DC off\n\r", "BLDC use 0\n\r", "BLDC off\n\r",
-                "BLDC use 1\n\r", "BLDC off\n\r" };
+        final String[] dataStringsForReadjustingRPM = { "BLDC use 0\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r"
+                , "BLDC use 1\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r"};
+        final String[] dataStringsForSupplier = {"DC setpwm 75\n\r" };
+        final String[] dataStringsForShutdownDC = { "DC off\n\r" };
+        final String[] dataStringsForShutdown = { "BLDC use 0\n\r"};
+        final String[] dataStringsForShutdown1 = { "BLDC off\n\r"};
+        final String[] dataStringsForShutdown2 = { "BLDC use 1\n\r"};
+        final String[] dataStringsForShutdown3 = { "BLDC off\n\r"};
 
         sequenceHandler = new SequenceHandler(dataStringsForAngle);
 
@@ -251,7 +256,8 @@ public class MainActivity extends Activity {
             @Override
             public void run(){
                 try {
-                    Thread.sleep(100);
+
+                    Thread.sleep(200);
                     sequenceHandler = new SequenceHandler(dataStringsForReadjustingRPM);
 
                     Thread.sleep(waitForStepperToEndTime);
@@ -259,8 +265,37 @@ public class MainActivity extends Activity {
 
                     // Hier irgendwann endsignal ausgeben!
 
+                    Thread.sleep(1500);
+                    AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
+                    ValueItem valueItem = ValueItem.getInstance();
+                    valueItem.foundShape = false;
+                    valueItem.totalTimeUsed = 0;
+                    valueItem.calculatedAngle = 0;
+                    valueItem.editedImage = "a";
+                    valueItem.originalImage = "a";
+                    valueItem.mainArea = 0;
+                    valueItem.objectBorder = 0;
+                    valueItem.finished = true;
+                    valueItem.overrideValues(valueItem);
+                    asyncTaskSendObject.execute();
+
                     Thread.sleep(waitUntilEndTime);
+
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown);
+                    Thread.sleep(200);
+                    sequenceHandler = new SequenceHandler(dataStringsForShutdown1);
+                    Thread.sleep(200);
+                    sequenceHandler = new SequenceHandler(dataStringsForShutdown2);
+                    Thread.sleep(200);
+                    sequenceHandler = new SequenceHandler(dataStringsForShutdown3);
+                    Thread.sleep(200);
+
+                    sequenceHandler = new SequenceHandler(dataStringsForShutdownDC);
+                    /*
+                    Log.d(DEBUG_TAG, "before dataStringsForShutdown");
+                    sequenceHandler = new SequenceHandler(dataStringsForShutdownDC);
+                    Log.d(DEBUG_TAG, "after dataStringsForShutdown");
+                    */
 
                 } catch (InterruptedException e) {
                     Log.d(DEBUG_TAG, "Interrupted Thread in sendCommandsToBoard");
@@ -294,7 +329,7 @@ public class MainActivity extends Activity {
     }
 
     public void onClickStartMotor(View view) {
-        int startRPM = 3000;
+        int startRPM = 3150;
         String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + startRPM + "\n\r",
                 "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + startRPM + "\n\r", "BLDC on\n\r"  };
         sequenceHandler = new SequenceHandler(dataStrings);
@@ -311,6 +346,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(mUsbReceiver);
+        unbindService(usbConnection);
     }
 
     //ToDo: Fill method for recieveing ConfItem
@@ -334,10 +371,12 @@ public class MainActivity extends Activity {
     //ValueItem wird in ein ByteArray geparst und gesendet
     private void SendValueItem() {
         try {
+            ConfigurationItem configurationItem = ConfigurationItem.getInstance();
 
-            AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
-            asyncTaskSendObject.execute().get();
-
+            if(configurationItem.startSignal == false) {
+                AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
+                asyncTaskSendObject.execute().get();
+            }
             recieveConfItem();
         }catch(Exception ex){
             ex.printStackTrace();
@@ -355,7 +394,7 @@ public class MainActivity extends Activity {
     //   ----------------------------- USB Service + Helper Methoden ----------------------------------------------
     //<editor-fold desc="USB Service">
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
-        if (!UsbService.SERVICE_CONNECTED) {
+            if (!UsbService.SERVICE_CONNECTED) {
             Intent startService = new Intent(this, service);
             if (extras != null && !extras.isEmpty()) {
                 Set<String> keys = extras.keySet();
@@ -403,7 +442,7 @@ public class MainActivity extends Activity {
         public void receiveUSBMessage(){
             try {
                 if(counter <= dataStrings.length) {
-                    Thread.sleep(70);
+                    Thread.sleep(80);
                     usbService.write(dataStrings[counter].getBytes("US-ASCII"));
                     counter++;
                 }else{
