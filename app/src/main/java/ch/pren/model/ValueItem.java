@@ -29,6 +29,7 @@ public class ValueItem extends Observable implements Serializable {
     public int totalTimeUsed;
     public boolean foundShape;
     public double calculatedAngle;
+    public boolean finished;
 
     private ValueItem() {
         this.mainArea = 0;

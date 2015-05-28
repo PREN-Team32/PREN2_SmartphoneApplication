@@ -46,9 +46,9 @@ public class AngleCalculator {
         if(angle <= 0){
             double notSignedAngle = Math.abs(angle);
             // links ist f
-            return "f " + ( (int) (notSignedAngle * 1964) + 1);
+            return "r " + ( (int) (notSignedAngle * 1964) + 1);
         }else {
-            return "r " + ( (int) (angle * 1964));
+            return "f " + ( (int) (angle * 1964));
         }
     }
 
