@@ -28,7 +28,7 @@ public class AngleCalculator {
             gegenkathete = (bucketMidPosition - midPositionInPx)*pixelToCm;
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
             return angle;
-            //returns negative angle if object on right side
+            //returns positive angle if object on right side
         }
         else {
             if(bucketMidPosition < 0) {
@@ -37,7 +37,7 @@ public class AngleCalculator {
             gegenkathete = (midPositionInPx - bucketMidPosition)*pixelToCm;
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
             return angle*(-1);
-            //returns positive angle if object on left side
+            //returns negative angle if object on left side
         }
     }
 
