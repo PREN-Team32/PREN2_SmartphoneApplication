@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import ch.pren.Wireless.AsyncTaskRecieveObject;
 import ch.pren.Wireless.AsyncTaskSendObject;
@@ -207,17 +208,21 @@ public class MainActivity extends Activity {
             if (configurationItem.startSignal) {
                 Log.d("Method DetectBasket" , "In configItem.start singal check");
                 Toast.makeText(getApplicationContext(), "Start Signal erhalten", Toast.LENGTH_SHORT).show();
-                sendCommandsToBoard(calculatedAngle);
+                sendCommandsToBoard(calculatedAngle, (int) detector.getGebrauchteZeit());
                 Log.d("Method DetectBasket" , "Nach configItem.start singal check");
+
             }
 
             ValueItem valueItem = ValueItem.getInstance();
-            if(valueItem.finished == false) {
+            if(configurationItem.startSignal == false) {
+                Log.d("ValueItem", "ValueItem.Finsihed: " + valueItem.finished);
                 valueItem.calculatedAngle = calculatedAngle;
                 valueItem.totalTimeUsed = (int) detector.getGebrauchteZeit();
                 valueItem.mainArea = detector.getMainAreaX();
                 valueItem.foundShape = detector.getIsBucketShape();
+                valueItem.finished = false;
                 saveEditedImageInDir(detector.getEditedImage());
+
             }
             SendValueItem();
         } catch (Exception ex) {
@@ -225,7 +230,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void sendCommandsToBoard(final double angle) {
+    private void sendCommandsToBoard(final double angle, int usedtime) {
 
         final int waitForStepperToEndTime = 1000;
         final int waitUntilEndTime = 4000;
@@ -253,9 +258,9 @@ public class MainActivity extends Activity {
         Log.d(DEBUG_TAG, "Gebrauchte Zeit von takePicture bis senden des Winkels:: " + zeitGesamtSendData);
         */
 
-        Thread thread1 = new Thread(new Runnable() {
+        /*Thread thread1 = new Thread(new Runnable() {
             @Override
-            public void run(){
+            public void run(){*/
                 try {
 
                     Thread.sleep(200);
@@ -270,15 +275,17 @@ public class MainActivity extends Activity {
                     AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
                     ValueItem valueItem = ValueItem.getInstance();
                     valueItem.foundShape = false;
-                    valueItem.totalTimeUsed = 0;
+                    valueItem.totalTimeUsed = usedtime;
                     valueItem.calculatedAngle = 0;
                     valueItem.editedImage = "a";
                     valueItem.originalImage = "a";
                     valueItem.mainArea = 0;
                     valueItem.objectBorder = 0;
                     valueItem.finished = true;
+                    Log.d("Before Finish senden", "Finsih wurde noch nicht gesendet");
                     valueItem.overrideValues(valueItem);
-                    asyncTaskSendObject.execute();
+                    asyncTaskSendObject.execute().get();
+                    Log.d("Finish Senden", "Finish wurde gesendet");
 
                     Thread.sleep(waitUntilEndTime);
 
@@ -298,12 +305,12 @@ public class MainActivity extends Activity {
                     Log.d(DEBUG_TAG, "after dataStringsForShutdown");
                     */
 
-                } catch (InterruptedException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     Log.d(DEBUG_TAG, "Interrupted Thread in sendCommandsToBoard");
                 }
-            }
-        });
-        thread1.start();
+            //}
+       // });
+        //thread1.start();
     }
 
     private int calculateRpmFittingAngle(final double angle){
@@ -336,11 +343,6 @@ public class MainActivity extends Activity {
         sequenceHandler = new SequenceHandler(dataStrings);
     }
 
-    public void onClickSendData(View view) {
-        sendCommandsToBoard(3.6);
-        Log.d(DEBUG_TAG, "on Click ");
-    }
-
     //--------------------------------------  Wireless relevanten Methoden    ---------------------------------------------------------
     //<editor-fold desc="Wireless">
 
@@ -349,6 +351,14 @@ public class MainActivity extends Activity {
         super.onDestroy();
         unregisterReceiver(mUsbReceiver);
         unbindService(usbConnection);
+
+        mPreview.mCamera.stopPreview();
+        mPreview.getHolder().removeCallback(mPreview);
+        camera.stopPreview();
+        camera.setPreviewCallback(null);
+        camera.release();
+        camera = null;
+
     }
 
     //ToDo: Fill method for recieveing ConfItem
