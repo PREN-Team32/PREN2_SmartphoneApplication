@@ -27,16 +27,6 @@
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:id="@+id/sendValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClickSendData"
-        android:text="Take/Send Pic"
-        android:layout_below="@+id/camera_preview"
-        android:layout_toLeftOf="@+id/bluetoothButton"
-        android:layout_toStartOf="@+id/bluetoothButton" />
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start Motors"

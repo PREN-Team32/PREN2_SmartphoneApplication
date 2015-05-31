@@ -14,7 +14,7 @@ import java.util.Observable;
  * Wrapperclass used to store and transmit the results of the object detector
  * @author Niklaus
  */
-public class ValueItem extends Observable implements Serializable {
+public class ValueItem extends Observable implements Serializable{
     private static ValueItem singeltonInstance;
 
     //Needed for identifying the object over serialization
@@ -39,14 +39,21 @@ public class ValueItem extends Observable implements Serializable {
     }
 
     public static final ValueItem getInstance() {
-        if (singeltonInstance == null) {
+        if(singeltonInstance == null) {
             singeltonInstance = new ValueItem();
         }
         return singeltonInstance;
     }
 
     public void overrideValues(ValueItem newValues) {
-        singeltonInstance = newValues;
+
+        this.calculatedAngle = newValues.calculatedAngle;
+        this.editedImage = newValues.editedImage;
+        this.foundShape = newValues.foundShape;
+        this.mainArea = newValues.mainArea;
+        this.objectBorder = newValues.objectBorder;
+        this.originalImage = newValues.originalImage;
+        this.totalTimeUsed = newValues.totalTimeUsed;
         setChanged();
         notifyObservers();
     }

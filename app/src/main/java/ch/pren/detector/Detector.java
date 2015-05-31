@@ -11,9 +11,6 @@ import static ch.pren.androidapp.MainActivity.DEBUG_TAG;
  * Created by Nikk
  */
 public class Detector {
-
-
-
     private Bitmap editedImage;
     private Bitmap originalImage;
     private int brightPixCount = 0;
@@ -71,7 +68,7 @@ public class Detector {
 
 
 
-    public double start() {
+    public double start() throws BucketNotFoundException {
         //Step 1:
         //Looping through all Pixels, determine luminance and evaluate it against LUMINANCETHRESHOLD
         //to determine whether to color the pixel black or white
@@ -118,7 +115,7 @@ public class Detector {
         return angleInDegrees;
     }
 
-    private int findObject(int mainArea) {
+    private int findObject(int mainArea) throws BucketNotFoundException {
         int rgbCurrentPixel;
         int xCoordinate;
         Log.d(DEBUG_TAG, "#Detektor: Attempting to find bucket..");
@@ -164,11 +161,12 @@ public class Detector {
 
         if(xCoordinate == Integer.MIN_VALUE || xCoordinate == Integer.MAX_VALUE) {
             System.err.println("#Detektor: NO SHAPE FOUND.");
+            throw new BucketNotFoundException();
         }
         return xCoordinate;
     }
 
-    private int calculateMainArea() throws IllegalArgumentException {
+    private int calculateMainArea() throws BucketNotFoundException {
         try {
             int totalX = 0;
             int totalY = 0;
@@ -184,7 +182,8 @@ public class Detector {
                 }
             }
             if(blackPixCount == 0) {
-                throw new IllegalArgumentException(DEBUG_TAG + "#Detector: 0 black pixels were found in the picture.");
+                System.err.println("#Detector: 0 black pixels were found in the picture.");
+                throw new BucketNotFoundException();
             }
             else {
                 this.mainAreaX = totalX / blackPixCount;
@@ -222,7 +221,6 @@ public class Detector {
                 }
             }
         }
-        //System.out.println("(" + x + ", " + y + ", " + isBucketShape + ")");
         return isBucketShape;
     }
 
