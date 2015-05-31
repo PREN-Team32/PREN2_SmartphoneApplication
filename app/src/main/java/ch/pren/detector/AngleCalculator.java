@@ -24,7 +24,7 @@ public class AngleCalculator {
         else {
             bucketMidPosition = objectBorder - halfBucketWidthInPx;
         }
-        if(objectBorder >= midPositionInPx) {            ;
+        if(objectBorder >= midPositionInPx) {
             gegenkathete = (bucketMidPosition - midPositionInPx)*pixelToCm;
             angle = Math.toDegrees(Math.atan2(gegenkathete, ankathete));
             return angle;

@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
     private MyHandler mHandler;
     private ValueItem valueItem;
 
-    
+
 
     private long zeitBegin;
     private long zeitEndeSendData;
@@ -139,24 +139,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        /* So mol usklammeret oder
-        // Falls gebraucht ins onDestroy reintun
-        if (camera != null) {
-            mPreview.mCamera.stopPreview();
-            mPreview.getHolder().removeCallback(mPreview);
-            camera.stopPreview();
-            camera.setPreviewCallback(null);
-            camera.release();
-            camera = null;
-        }
-        unregisterReceiver(mUsbReceiver);
-        unbindService(usbConnection);
-        */
-    }
 
 
 
@@ -231,25 +213,20 @@ public class MainActivity extends Activity {
 
     private void sendCommandsToBoard(final double angle, int usedtime) {
 
-        final int waitForStepperToEndTime = 1000;
-        final int waitUntilEndTime = 4000;
+        final int rpmBLDC_zero = 3300;
+        final int pwmDC = 32;
 
         String angleAsSteps = AngleCalculator.getStepsAsString(angle);
         int toReadjustRPM = calculateRpmFittingAngle(angle);
 
         final String[] dataStringsForAngle = { "l6480 move " + angleAsSteps + "\n\r" };
-        final String[] dataStringsForReadjustingRPM = { "BLDC use 0\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r"
-                , "BLDC use 1\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r"};
-        final String[] dataStringsForSupplier = {"DC setpwm 75\n\r" };
+        final String[] dataStringsForReadjustingRPM = {"BLDC use 1\n\r", "BLDC setrpm " + toReadjustRPM + "\n\r"};
+        final String[] dataStringsForSupplier = {"DC setpwm " + pwmDC + "\n\r" };
         final String[] dataStringsForShutdownDC = { "DC off\n\r" };
         final String[] dataStringsForShutdown = { "BLDC use 0\n\r"};
         final String[] dataStringsForShutdown1 = { "BLDC off\n\r"};
         final String[] dataStringsForShutdown2 = { "BLDC use 1\n\r"};
         final String[] dataStringsForShutdown3 = { "BLDC off\n\r"};
-
-        sequenceHandler = new SequenceHandler(dataStringsForAngle);
-
-
         /*
         Toast.makeText(context, "Sent data to Board: " + angleAsSteps, Toast.LENGTH_SHORT).show();
         zeitEndeSendData = System.currentTimeMillis();
@@ -262,13 +239,13 @@ public class MainActivity extends Activity {
             public void run(){*/
                 try {
 
+                    sequenceHandler = new SequenceHandler(dataStringsForAngle);
+
                     Thread.sleep(200);
                     sequenceHandler = new SequenceHandler(dataStringsForReadjustingRPM);
 
-                    Thread.sleep(waitForStepperToEndTime);
+                    Thread.sleep(1000);
                     sequenceHandler = new SequenceHandler(dataStringsForSupplier);
-
-                    // Hier irgendwann endsignal ausgeben!
 
                     Thread.sleep(1500);
                     AsyncTaskSendObject asyncTaskSendObject = new AsyncTaskSendObject(11111);
@@ -286,23 +263,18 @@ public class MainActivity extends Activity {
                     asyncTaskSendObject.execute().get();
                     Log.d("Finish Senden", "Finish wurde gesendet");
 
-                    Thread.sleep(waitUntilEndTime);
+                    Thread.sleep(2500);
 
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown1);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown2);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                     sequenceHandler = new SequenceHandler(dataStringsForShutdown3);
-                    Thread.sleep(200);
+                    Thread.sleep(100);
 
                     sequenceHandler = new SequenceHandler(dataStringsForShutdownDC);
-                    /*
-                    Log.d(DEBUG_TAG, "before dataStringsForShutdown");
-                    sequenceHandler = new SequenceHandler(dataStringsForShutdownDC);
-                    Log.d(DEBUG_TAG, "after dataStringsForShutdown");
-                    */
 
                 } catch (InterruptedException | ExecutionException e) {
                     Log.d(DEBUG_TAG, "Interrupted Thread in sendCommandsToBoard");
@@ -313,8 +285,8 @@ public class MainActivity extends Activity {
     }
 
     private int calculateRpmFittingAngle(final double angle){
-        int lowestRPM = 3150;
-        int highestRPM = 3190;
+        int lowestRPM = 2600;
+        int highestRPM = 2700;
         double maxAngle = 19.45;
         double absAngle = Math.abs(angle);
         return (int) (lowestRPM +(((highestRPM - lowestRPM) / maxAngle) * absAngle));
@@ -336,9 +308,10 @@ public class MainActivity extends Activity {
     }
 
     public void onClickStartMotor(View view) {
-        int startRPM = 3150;
-        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + startRPM + "\n\r",
-                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + startRPM + "\n\r", "BLDC on\n\r"  };
+        int startRPM_BLDC_zero = 3300;
+        int startRPM_BLDC_one = 2600;
+        String[] dataStrings = { "BLDC use 0\n\r", "BLDC setrpm " + startRPM_BLDC_zero + "\n\r",
+                "BLDC on\n\r", "BLDC use 1\n\r", "BLDC setrpm " + startRPM_BLDC_one + "\n\r", "BLDC on\n\r"  };
         sequenceHandler = new SequenceHandler(dataStrings);
     }
 
